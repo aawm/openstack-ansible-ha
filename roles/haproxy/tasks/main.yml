@@ -1,0 +1,47 @@
+---
+
+
+- name: Install haproxy packages
+  apt: name={{ item }} state=installed force=yes
+  with_items:
+    - haproxy
+    - keepalived
+
+
+- name: Configure haproxy
+  template: src=haproxy.j2 dest=/etc/haproxy/haproxy.cfg
+  notify: restart haproxy
+ 
+
+- name: configure keepalived on controller1
+  template: src=keepalived_cnt1.j2 dest=/etc/keepalived/keepalived.conf
+  notify: restart keepalived
+  when: hostname == "controller1"
+
+- name: configure keepalived on controller2
+  template: src=keepalived_cnt2.j2 dest=/etc/keepalived/keepalived.conf
+  notify: restart keepalived
+  when: hostname == "controller2"
+
+
+- name: configure keepalived on controller3
+  template: src=keepalived_cnt3.j2 dest=/etc/keepalived/keepalived.conf
+  notify: restart keepalived
+  when: hostname == "controller3"
+
+
+
+- meta: flush_handlers
+
+
+
+
+
+
+
+
+
+
+
+ 
+

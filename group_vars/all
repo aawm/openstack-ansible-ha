@@ -1,0 +1,86 @@
+
+apt_mirror_addr: 192.168.56.12
+controller_ipaddr: 192.168.56.110
+controller: 192.168.56.110
+controller1_ipaddr: 192.168.56.111
+controller2_ipaddr: 192.168.56.112
+controller3_ipaddr: 192.168.56.113
+
+compute1_ipaddr: 192.168.56.114
+compute2_ipaddr: 192.168.56.115
+
+mng_inf_name: eth0
+mng_net: 192.168.56.0/24
+
+mysql_root_db_pass: qydcos
+
+rabbit_userid: openstack
+rabbit_pass: qydcos
+
+
+keystone_admin_token: openstack1234
+keystone_hostname: controller
+keystone_protocol: http
+keystone_admin_port: 35357
+keystone_db_name: keystone
+keystone_db_user: keystone
+keystone_db_pass: qydcos
+
+
+glance_hostname: controller
+glance_db_name: glance
+glance_db_user: glance
+glance_db_pass: qydcos
+
+cinder_hostname: controller
+cinder_db_name: cinder
+cinder_db_user: cinder
+cinder_db_pass: qydcos
+cinder_volume_dev: /dev/sdb
+
+nova_hostname: controller
+nova_db_name: nova
+nova_db_user: nova
+nova_db_pass: qydcos
+
+neutron_hostname: controller
+neutron_db_name: neutron
+neutron_db_user: neutron
+neutron_db_pass: qydcos
+
+external_interface_name: eth2
+data_net_interface_name: eth1
+mng_net_interface_name: eth0
+
+
+swift_replica_num: 2
+swift_dev_name: sdc
+swift_dev_path: /dev/sdc
+swift_storage_node1: 192.168.56.114
+swift_storage_node2: 192.168.56.115
+swift_hostname: controller
+
+heat_hostname: controller
+heat_db_name: heat
+heat_db_user: heat
+heat_db_pass: qydcos
+stack_domain_admin: heat_domain_admin
+heat_domain_pass: qydcos
+
+ceilometer_hostname: controller
+ceilometer_db_name: ceilometer
+ceilometer_db_user: ceilometer
+ceilometer_db_pass: qydcos
+
+admin_pass: qydcos
+demo_pass: qydcos
+glance_pass: qydcos
+cinder_pass: qydcos
+nova_pass: qydcos
+neutron_pass: qydcos
+swift_pass: qydcos
+sahara_pass: qydcos
+heat_pass: qydcos
+ceilometer_pass: qydcos
+
+

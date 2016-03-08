@@ -1,0 +1,23 @@
+---
+
+- name: Install neutron compute packages
+  apt: name={{ item }} state=installed force=yes
+  with_items:
+   - neutron-plugin-ml2
+   - neutron-plugin-openvswitch-agent
+
+- name: Configure neutron
+  template: src=neutron.j2 dest=/etc/neutron/neutron.conf
+  
+
+- name: Configure neutron-plugin
+  template: src=ml2_conf.j2 dest=/etc/neutron/plugins/ml2/ml2_conf.ini
+  notify: restart neutron-plugin
+  changed_when: true
+
+
+
+
+
+
+

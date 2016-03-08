@@ -1,0 +1,52 @@
+---
+
+- name: Create nova database
+  mysql_db: name={{ nova_db_name }} state=present
+
+
+- name: Create nova user in database
+  mysql_user: name={{ nova_db_user }} password={{ nova_db_pass }} host=%  priv=*.*:ALL,GRANT state=present
+
+
+
+- name: Install nova controller packages
+  apt: name={{ item }} state=installed force=yes
+  with_items:
+   - nova-api 
+   - nova-cert 
+   - nova-conductor 
+   - nova-consoleauth 
+   - nova-novncproxy 
+   - nova-scheduler 
+   - python-novaclient
+
+
+- name: Configure nova
+  template: src=nova.j2 dest=/etc/nova/nova.conf
+  notify: 
+   - restart nova-api
+   - restart nova-cert
+   - restart nova-consoleauth
+   - restart nova-scheduler
+   - restart nova-conductor 
+   - restart nova-novncproxy
+  changed_when: true
+
+
+
+- name: Sync nova database
+  shell: /bin/bash -c "nova-manage db sync" nova
+  when: hostname == "controller1"
+
+- meta: flush_handlers
+
+
+
+
+
+
+
+
+
+
+

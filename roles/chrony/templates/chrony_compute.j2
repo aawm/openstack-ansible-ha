@@ -1,0 +1,14 @@
+server controller1
+server controller2
+server controller3
+
+driftfile /var/lib/chrony/drift
+logdir /var/log/chrony
+log measurements statistics tracking
+keyfile /etc/chrony/chrony.keys
+commandkey 1
+#local stratum 10
+initstepslew 20 controller1
+#allow controller1
+
+

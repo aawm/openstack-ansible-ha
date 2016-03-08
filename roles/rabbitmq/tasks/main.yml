@@ -1,0 +1,84 @@
+---
+
+
+- name: Install rabbitmq server
+  apt: name=rabbitmq-server state=latest force=yes
+  notify: restart rabbitmq
+
+#- name: Add rabbitmq user
+#  rabbitmq_user: user={{ rabbit_userid }}
+#                 password={{ rabbit_pass }}
+#                 vhost=/
+#                 configure_priv=.*
+#                 read_priv=.*
+#                 write_priv=.*
+#                 state=present
+
+
+- name: ensure rabbitmq is stopped
+  service: name=rabbitmq-server state=stopped
+
+- name: configure rabbitmq
+  template: src=rabbitmq-env.j2 dest=/etc/rabbitmq/rabbitmq-env.conf
+
+
+- name: grab .erlang.cookie 
+  fetch: dest=fetch/.erlang.cookie flat=yes src=/var/lib/rabbitmq/.erlang.cookie
+  when: hostname == "controller1"
+
+
+
+- name: Copy .erlang.cookie
+  copy: src=fetch/.erlang.cookie dest=/var/lib/rabbitmq/.erlang.cookie owner=rabbitmq group=rabbitmq mode=400
+  register: new_cookie
+  when: (hostname == "controller2" or hostname == "controller3")
+
+- name: Start rabbitmq
+  service: name=rabbitmq-server state=started
+
+- name: Add rabbitmq user
+  rabbitmq_user: user={{ rabbit_userid }}
+                 password={{ rabbit_pass }}
+                 vhost=/
+                 configure_priv=.*
+                 read_priv=.*
+                 write_priv=.*
+                 state=present
+
+
+- name: rabbitmq stop app
+  command: rabbitmqctl stop_app
+  when: (hostname == "controller2" or hostname == "controller3")
+  ignore_errors: true
+
+- name: rabbitmq join cluster
+  command: rabbitmqctl join_cluster rabbit@controller1
+  when: (hostname == "controller2" or hostname == "controller3")
+  ignore_errors: true
+
+
+- name: start app
+  command: rabbitmqctl start_app
+  when: (hostname == "controller2" or hostname == "controller3")
+  ignore_errors: true
+
+
+#- name: set hamode
+#  command: rabbitmqctl set_policy ha-all '^(?!amq\.).*' '{"ha-mode": "all"}'
+#  when: hostname == "controller1"
+
+- name: ensure the default vhost contains the HA policy
+  rabbitmq_policy: name=ha-all pattern='^(?!amq\.).*' tags="ha-mode=all"
+
+
+#- name: Adding openstack user in rabbitmq server
+#  command: rabbitmqctl add_user openstack {{ RABBIT_PASS  }}
+
+
+#- name: Set user permissioins
+#  command: rabbitmqctl set_permissions openstack ".*" ".*" ".*" 
+
+...
+  
+
+

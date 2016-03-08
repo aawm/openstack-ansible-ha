@@ -1,0 +1,75 @@
+---
+
+- name: Configuring source.list
+  template: src=sources.list.j2 dest=/etc/apt/sources.list
+
+
+- name: Update apt cache
+  apt:  update_cache=yes
+
+
+- name: Create the hosts file for all machines
+  template: src=hosts.j2 dest=/etc/hosts
+
+- name: Install python-openstackclient
+  apt: name=python-openstackclient state=latest force=yes
+
+- name: Setting up hostname
+  hostname: name={{ hostname }}
+  when: hostname is defined
+
+- name: Setting up sysctl.conf on controller nodes
+  sysctl: name={{ item.name }} value={{ item.value }} state=present reload=yes
+  with_items:
+   - { name: "net.ipv4.conf.default.rp_filter", value: 0 }
+   - { name: "net.ipv4.conf.all.rp_filter", value: 0 }
+   - { name: "net.ipv4.ip_forward", value: 1 }
+  when: "'controller' in group_names"
+
+
+- name: Make haproxy bindable on non local addresses
+  sysctl:
+    name: net.ipv4.ip_nonlocal_bind
+    value: 1
+    sysctl_set: yes
+    state: present
+  when: "'controller' in group_names"
+
+- name: Setting up sysctl.conf on compute nodes
+  sysctl: name={{ item.name }} value={{ item.value }} state=present reload=yes
+  with_items:
+   - { name: net.ipv4.conf.all.rp_filter, value: 0 }
+   - { name: net.ipv4.conf.default.rp_filter=0, value: 0 }
+  when: "'computes' in group_names"
+
+
+
+- name: Install chrony on all nodes
+  apt: name=chrony state=installed force=yes
+  notify: restart chrony
+#  changed_when: true
+
+- name: Configure chrony on controller master nodes
+  template: src=chrony_controller1.j2 dest=/etc/chrony/chrony.conf
+  when: hostname == "controller1"
+
+- name: Configure chrony on controller nodes
+  template: src=chrony_controller23.j2 dest=/etc/chrony/chrony.conf
+  when: (hostname == "controller2" or hostname == "controller3")
+
+
+- name: Configure chrony on all computes nodes
+  template: src=chrony_compute.j2 dest=/etc/chrony/chrony.conf
+  when: "'computes' in group_names"
+
+
+- meta: flush_handlers
+
+
+
+#- name: Setting up interface ip address
+#  nmcli: conn_name=my-team1 ifname={{ mng_inf_name }} type=team ip4={{ ansible_eth0.ipv4.address }} state=present autoconnect=yes
+
+
+ 
+

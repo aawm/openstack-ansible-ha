@@ -1,0 +1,10 @@
+---
+
+- name: restart keystone
+  service: name=keystone state=restarted
+
+- name: restart memcached
+  service: name=memcached state=restarted
+
+
+

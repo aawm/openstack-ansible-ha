@@ -1,0 +1,33 @@
+---
+
+- hosts: all
+  roles: 
+  - role: common 
+
+- hosts: controller
+  roles:
+    - haproxy
+    - mariadb
+    - rabbitmq
+    - keystone
+    - glance
+    - cinder
+    - nova
+    - neutron
+    - dashboard
+    - swift
+    - heat
+
+- hosts: computes
+  roles:
+   - nova-compute
+   - cinder-volume
+   - neutron-compute
+
+
+- hosts: swift-storage
+  roles:
+   - swift-storage
+
+
+

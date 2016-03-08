@@ -1,0 +1,132 @@
+---
+
+
+- name: Install swift-storage packages
+  apt: name={{ item }} state=installed force=yes
+  with_items:
+   - xfsprogs
+   - rsync
+   - swift
+   - swift-account
+   - swift-container
+   - swift-object
+
+- name: Ensure /srv/node is ok
+  file: path=/srv/node/ state=directory
+
+- name: Ensure /srv/node/sdc is ok
+  file: path=/srv/node/{{ swift_dev_name }} state=directory owner=swift group=swift
+
+- name: Format the {{ swift_dev_path }} device as XFS
+  filesystem: fstype=xfs dev={{ swift_dev_path }}
+
+- name: Mount device
+  mount: src={{ swift_dev_path }} name=/srv/node/{{ swift_dev_name }} fstype=xfs opts="noatime,nodiratime,nobarrier,logbufs=8" dump=0 passno=0 state=mounted
+
+
+- name: Confiugre rsyncd
+  template: src=rsyncd.j2 dest=/etc/rsyncd.conf
+
+- name: Ensure rsyncd is enabled
+  copy: src=rsync dest=/etc/default/rsync
+  notify: restart rsync
+  changed_when: true
+
+- name: Configure swift/account-server
+  template: src=account-server.j2 dest=/etc/swift/account-server.conf
+
+
+- name: Configure swift/container-server
+  template: src=container-server.j2 dest=/etc/swift/container-server.conf
+
+- name: Configure swift/object-server
+  template: src=object-server.j2  dest=/etc/swift/object-server.conf
+
+
+- name: Ensure proper ownership of /srv/node
+  file: path=/srv/node owner=swift group=swift
+
+- name: Ensure /var/cache/swift is ok
+  file: path=/var/cache/swift state=directory owner=root group=swift
+
+- name: Configure swift
+  copy: src=swift.conf dest=/etc/swift/swift.conf
+
+
+- name: Ensure /etc/swift is ok
+  file: path=/etc/swift owner=root group=swift 
+  
+
+
+#- name: check if account.ring.gz already exists
+  #stat: path=/etc/swift/{{ item }}.ring.gz
+#  command: ls /etc/swift/account.ring.gz
+#  register: rings_exist
+#  ignore_errors: true
+#  changed_when: rings_exist.rc > 0
+
+#- debug: msg={{ rings_exist.rc }}
+
+#- name: build account ring
+#  command: swift-ring-builder account.builder add --region 1 --zone 1 --ip {{ ansible_em1.ipv4.address }} --port 6002 --device {{ swift_dev_path }} --weight 100
+#           chdir=/etc/swift
+#  delegate_to: "{{ swift_proxy_server }}"
+#  with_sequence: count=3
+#  when: losetup.rc >0 and rings_exist.rc > 0
+
+
+#- name: build container ring
+#  command: swift-ring-builder container.builder add --region 1 --zone 1 --ip {{ ansible_em1.ipv4.address }} --port 6002 --device {{ swift_dev_path }} --weight 100
+#           chdir=/etc/swift
+#  delegate_to: "{{ swift_proxy_server }}"
+#  with_sequence: count=3
+#  when: losetup.rc >0 and rings_exist.rc > 0
+
+#- name: build object ring
+#  command: swift-ring-builder object.builder add --region 1 --zone 1 --ip {{ ansible_em1.ipv4.address }} --port 6002 --device {{ swift_dev_path }} --weight 100
+#           chdir=/etc/swift
+#  delegate_to: "{{ swift_proxy_server }}"
+#  with_sequence: count=3
+#  when: losetup.rc >0 and rings_exist.rc > 0
+
+
+
+- meta: flush_handlers
+
+
+- name: put the *.ring.gz files on all storage servers
+  copy: src=fetch/{{ item }}.ring.gz dest=/etc/swift/{{item}}.ring.gz owner=swift group=swift mode=0640
+  register: new_rings
+  with_items:
+    - account
+    - object
+    - container
+
+#- name: make sure default configuration files are *not* there
+#  file: state=absent path=/etc/swift/{{ item }}-server.conf
+#  with_items:
+#    - account
+#    - object
+#    - container
+
+- name: restart swift-storage node services
+  command: swift-init all stop
+  when: new_rings.changed
+  ignore_errors: True
+
+- name: restart swift-storage node services
+  command: swift-init all start
+  when: new_rings.changed
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,31 @@
+---
+
+- name: configure apache
+  template: src=ports.j2 dest=/etc/apache2/ports.conf
+  
+
+- name: restart apache
+  service: name=apache2 state=restarted
+
+- name: Install dashboard packages
+  apt: name={{ item }} state=installed force=yes
+  with_items:
+   - openstack-dashboard
+
+
+
+- name: Configure dashboard
+  template: src=dashboard.j2 dest=/etc/openstack-dashboard/local_settings.py
+  notify:
+   - reload apache
+  changed_when: true
+
+
+
+
+
+- name: Remove ubuntu them
+  apt: name=openstack-dashboard-ubuntu-theme state=absent
+
+- meta: flush_handlers
+

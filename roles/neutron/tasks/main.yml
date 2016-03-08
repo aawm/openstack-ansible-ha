@@ -1,0 +1,86 @@
+---
+
+- name: Create neutron database
+  mysql_db: name={{ neutron_db_name }} state=present
+
+
+- name: Create neutron user in database
+  mysql_user: name={{ neutron_db_user }} password={{ neutron_db_pass }} host=%  priv=*.*:ALL,GRANT state=present
+
+
+
+- name: Install neutron controller packages
+  apt: name={{ item }} state=installed force=yes
+  with_items:
+   - neutron-server
+   - neutron-plugin-openvswitch-agent
+   - neutron-l3-agent
+   - neutron-dhcp-agent
+   - neutron-metadata-agent
+   - neutron-plugin-ml2
+   - neutron-lbaas-agent
+   - python-neutronclient
+
+
+- name: Configure neutron
+  template: src=neutron.j2 dest=/etc/neutron/neutron.conf group=neutron
+  notify:
+   - restart neutron-server
+  changed_when: true
+
+
+- name: Configure neutron-l3-agent
+  template: src=l3_agent.j2 dest=/etc/neutron/l3_agent.ini group=neutron
+  notify: restart neutron-l3-agent
+  changed_when: true
+
+- name: Configure neutron-dhcp-agent
+  template: src=dhcp_agent.j2 dest=/etc/neutron/dhcp_agent.ini group=neutron
+  notify: restart neutron-dhcp-agent
+  changed_when: true
+
+- name: Configure neutron-dnsmasq
+  template: src=dnsmasq-neutron.j2 dest=/etc/neutron/dnsmasq-neutron.conf group=neutron
+
+
+- name: Configure neutron-metadata-agent
+  template: src=metadata_agent.j2 dest=/etc/neutron/metadata_agent.ini group=neutron
+  notify: restart neutron-metadata-agent
+
+- name: Configure neutron-plugin-ml2
+  template: src=ml2_conf.j2 dest=/etc/neutron/plugins/ml2/ml2_conf.ini group=neutron
+  notify: 
+   - restart neutron-plugin-openvswitch-agent
+   - restart openvwitch
+  changed_when: true
+
+
+- name: Configure neutron-lbaas-agent
+  template: src=lbaas_agent.j2 dest=/etc/neutron/lbaas_agent.ini group=neutron
+  notify: restart neutron-lbaas-agent
+
+- name: Ensure /var/lib/neutron/lbaas is ok
+  file: path=/var/lib/neutron/lbaas state=directory owner=neutron group=neutron
+
+
+- name: Sync neutron database
+  shell: /bin/bash -c "neutron-db-manage --config-file /etc/neutron/neutron.conf  --config-file /etc/neutron/plugins/ml2/ml2_conf.ini upgrade head" neutron
+  when: hostname == "controller1"
+
+- meta: flush_handlers
+
+
+- name: Add br-ex
+  openvswitch_bridge: bridge=br-ex state=present
+
+- name: Add port to br-ex
+  openvswitch_port: bridge=br-ex port={{ external_interface_name }} state=present
+
+
+
+
+
+
+
+
+

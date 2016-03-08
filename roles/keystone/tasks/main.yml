@@ -1,0 +1,391 @@
+---
+
+
+
+- name: Create keystone db
+  mysql_db: name={{ keystone_db_name }} state=present
+
+
+- name: Create keystone  user
+  mysql_user: name={{ keystone_db_user }} password={{ keystone_db_pass }} host=%  priv=*.*:ALL,GRANT state=present
+
+
+- name: Disallow keystone service auto start after installation complete.
+  shell: /bin/echo "manual" > /etc/init/keystone.override
+
+
+- name: Install keystone packages
+  apt: name={{ item }} state=installed force=yes
+  with_items:
+   - keystone
+   - apache2
+   - libapache2-mod-wsgi
+   - memcached 
+   - python-memcache
+
+
+- name: Configure memcached
+  template: src=memcached.j2 dest=/etc/memcached.conf
+  notify: restart memcached
+  changed_when: true
+
+- name: Copy keystone.conf file
+  template: src=keystone.j2 dest=/etc/keystone/keystone.conf group=keystone
+  notify: restart keystone
+
+
+
+- name: Syncing keystone database
+  shell: /bin/bash -c "keystone-manage db_sync" keystone
+  when: hostname == "controller1"
+
+
+- name: Create Keystone services
+  keystone_service: > 
+    name="{{ item.name }}" 
+    type="{{ item.type }}"
+    description="{{ item.description|default('Not provided') }}"
+    publicurl="http://{{ keystone_hostname }}:5000/v2.0"
+    internalurl="http://{{ keystone_hostname }}:5000/v2.0"
+    adminurl="http://{{ keystone_hostname }}:35357/v2.0"
+    endpoint="{{ keystone_protocol }}://{{ keystone_hostname }}:{{ keystone_admin_port }}/v2.0"
+    token="{{ keystone_admin_token }}"
+    state="{{ item.state|default('present') }}"
+  with_items: 
+    - { name: keystone, type: identity, description: "Openstack Identity" }
+  when: hostname == "controller1"  
+
+- name: Create Glance service
+  keystone_service: >
+    name="{{ item.name }}"
+    type="{{ item.type }}"
+    description="{{ item.description|default('Not provided') }}"
+    publicurl="http://{{ keystone_hostname }}:9292"
+    internalurl="http://{{ keystone_hostname }}:9292"
+    adminurl="http://{{ keystone_hostname }}:9292"
+    endpoint="{{ keystone_protocol }}://{{ keystone_hostname }}:{{ keystone_admin_port }}/v2.0"
+    token="{{ keystone_admin_token }}"
+    state="{{ item.state|default('present') }}"
+  with_items:
+    - { name: glance, type: image, description: "Openstack Image service" }
+  when: hostname == "controller1"
+
+
+- name: Create Neutron service
+  keystone_service: >
+    name="{{ item.name }}"
+    type="{{ item.type }}"
+    description="{{ item.description|default('Not provided') }}"
+    publicurl="http://{{ keystone_hostname }}:9696"
+    internalurl="http://{{ keystone_hostname }}:9696"
+    adminurl="http://{{ keystone_hostname }}:9696"
+    endpoint="{{ keystone_protocol }}://{{ keystone_hostname }}:{{ keystone_admin_port }}/v2.0"
+    token="{{ keystone_admin_token }}"
+    state="{{ item.state|default('present') }}"
+  with_items:
+    - { name: neutron, type: network, description: "Openstack Networking" }
+  when: hostname == "controller1"
+
+- name: Create Nova service
+  keystone_service: >
+    name="{{ item.name }}"
+    type="{{ item.type }}"
+    description="{{ item.description|default('Not provided') }}"
+    publicurl="http://{{ keystone_hostname }}:8774/v2/%(tenant_id)s"
+    internalurl="http://{{ keystone_hostname }}:8774/v2/%(tenant_id)s"
+    adminurl="http://{{ keystone_hostname }}:8774/v2/%(tenant_id)s"
+    endpoint="{{ keystone_protocol }}://{{ keystone_hostname }}:{{ keystone_admin_port }}/v2.0"
+    token="{{ keystone_admin_token }}"
+    state="{{ item.state|default('present') }}"
+  with_items:
+    - { name: nova, type: compute, description: "Openstack Compute" }
+  when: hostname == "controller1"  
+
+- name: Create Cinder service
+  keystone_service: >
+    name="{{ item.name }}"
+    type="{{ item.type }}"
+    description="{{ item.description|default('Not provided') }}"
+    publicurl="http://{{ keystone_hostname }}:8776/v1/%(tenant_id)s"
+    internalurl="http://{{ keystone_hostname }}:8776/v1/%(tenant_id)s"
+    adminurl="http://{{ keystone_hostname }}:8776/v1/%(tenant_id)s"
+    endpoint="{{ keystone_protocol }}://{{ keystone_hostname }}:{{ keystone_admin_port }}/v2.0"
+    token="{{ keystone_admin_token }}"
+    state="{{ item.state|default('present') }}"
+  with_items:
+    - { name: cinder, type: volume, description: "Openstack Block Storage" }
+  when: hostname == "controller1"
+
+- name: Create Cinderv2 service
+  keystone_service: >
+    name="{{ item.name }}"
+    type="{{ item.type }}"
+    description="{{ item.description|default('Not provided') }}"
+    publicurl="http://{{ keystone_hostname }}:8776/v2/%(tenant_id)s"
+    internalurl="http://{{ keystone_hostname }}:8776/v2/%(tenant_id)s"
+    adminurl="http://{{ keystone_hostname }}:8776/v2/%(tenant_id)s"
+    endpoint="{{ keystone_protocol }}://{{ keystone_hostname }}:{{ keystone_admin_port }}/v2.0"
+    token="{{ keystone_admin_token }}"
+    state="{{ item.state|default('present') }}"
+  with_items:
+    - { name: cinderv2, type: volumev2, description: "Openstack Block Storage" }
+  when: hostname == "controller1"
+
+- name: Create Swift service
+  keystone_service: >
+    name="{{ item.name }}"
+    type="{{ item.type }}"
+    description="{{ item.description|default('Not provided') }}"
+    publicurl="http://{{ keystone_hostname }}:8080/v1/AUTH_%(tenant_id)s"
+    internalurl="http://{{ keystone_hostname }}:8080/v1/AUTH_%(tenant_id)s"
+    adminurl="http://{{ keystone_hostname }}:8080/v1"
+    endpoint="{{ keystone_protocol }}://{{ keystone_hostname }}:{{ keystone_admin_port }}/v2.0"
+    token="{{ keystone_admin_token }}"
+    state="{{ item.state|default('present') }}"
+  with_items:
+    - { name: swift, type: object-store, description: "Openstack Object Storage" }
+  when: hostname == "controller1"
+
+
+- name: Create Heat service
+  keystone_service: >
+    name="{{ item.name }}"
+    type="{{ item.type }}"
+    description="{{ item.description|default('Not provided') }}"
+    publicurl="http://{{ keystone_hostname }}:8004/v1/%(tenant_id)s"
+    internalurl="http://{{ keystone_hostname }}:8004/v1/%(tenant_id)s"
+    adminurl="http://{{ keystone_hostname }}:8004/v1/%(tenant_id)s"
+    endpoint="{{ keystone_protocol }}://{{ keystone_hostname }}:{{ keystone_admin_port }}/v2.0"
+    token="{{ keystone_admin_token }}"
+    state="{{ item.state|default('present') }}"
+  with_items:
+    - { name: heat, type: orchestration, description: "Orchestration" }
+  when: hostname == "controller1"
+
+- name: Create Heat-cfn service
+  keystone_service: >
+    name="{{ item.name }}"
+    type="{{ item.type }}"
+    description="{{ item.description|default('Not provided') }}"
+    publicurl="http://{{ keystone_hostname }}:8000/v1"
+    internalurl="http://{{ keystone_hostname }}:8000/v1s"
+    adminurl="http://{{ keystone_hostname }}:8000/v1"
+    endpoint="{{ keystone_protocol }}://{{ keystone_hostname }}:{{ keystone_admin_port }}/v2.0"
+    token="{{ keystone_admin_token }}"
+    state="{{ item.state|default('present') }}"
+  with_items:
+    - { name: heat-cfn, type: cloudformation, description: "Orchestration" }
+  when: hostname == "controller1"
+
+#BugHunter
+- name: Create ceilometer service
+  keystone_service: >
+    name="{{ item.name }}"
+    type="{{ item.type }}"
+    description="{{ item.description|default('Not provided') }}"
+    publicurl="http://{{ keystone_hostname }}:8777"
+    internalurl="http://{{ keystone_hostname }}:8777"
+    adminurl="http://{{ keystone_hostname }}:8777/v1"
+    endpoint="{{ keystone_protocol }}://{{ keystone_hostname }}:{{ keystone_admin_port }}/v2.0"
+    token="{{ keystone_admin_token }}"
+    state="{{ item.state|default('present') }}"
+  with_items:
+    - { name: ceilometr, type: metering, description: "Telemetry" }
+###########
+
+#- name: Create Sahara service
+#  keystone_service: >
+#    name="{{ item.name }}"
+#    type="{{ item.type }}"
+#    description="{{ item.description|default('Not provided') }}"
+#    publicurl="http://{{ keystone_hostname }}:8386/v1.1/%(tenant_id)s"
+#    internalurl="http://{{ keystone_hostname }}:8386/v1.1/%(tenant_id)s"
+#    adminurl="http://{{ keystone_hostname }}:8386/v1.1/%(tenant_id)s"
+#    endpoint="{{ keystone_protocol }}://{{ keystone_hostname }}:{{ keystone_admin_port }}/v2.0"
+#    token="{{ keystone_admin_token }}"
+#    state="{{ item.state|default('present') }}"
+#  with_items:
+#    - { name: sahara, type: data-processing, description: "Sahara Data Processing" }
+
+
+
+- name: Create admin project
+  keystone_user: 
+    token={{ keystone_admin_token }} 
+    endpoint="{{ keystone_protocol }}://{{ keystone_hostname }}:{{ keystone_admin_port }}/v2.0"
+    tenant=admin tenant_description="Admin Project"
+  when: hostname == "controller1"
+
+
+- name: Create admin user
+  keystone_user: 
+    token={{ keystone_admin_token }} 
+    endpoint="{{ keystone_protocol }}://{{ keystone_hostname }}:{{ keystone_admin_port }}/v2.0"
+    user=admin tenant=admin password={{ admin_pass }}
+  when: hostname == "controller1"
+
+- name: Apply admin role to user admin in project admin
+  keystone_user: 
+    token={{ keystone_admin_token }} 
+    endpoint="{{ keystone_protocol }}://{{ keystone_hostname }}:{{ keystone_admin_port }}/v2.0"
+    role=admin user=admin tenant=admin
+  when: hostname == "controller1"
+
+- name: Create service project
+  keystone_user: 
+    token={{ keystone_admin_token }} 
+    endpoint="{{ keystone_protocol }}://{{ keystone_hostname }}:{{ keystone_admin_port }}/v2.0"
+    tenant=service tenant_description="Service Project"
+  when: hostname == "controller1"
+
+- name: Create demo project
+  keystone_user: 
+    token={{ keystone_admin_token }} 
+    tenant=demo tenant_description="Demo Project"
+    endpoint="{{ keystone_protocol }}://{{ keystone_hostname }}:{{ keystone_admin_port }}/v2.0"
+  when: hostname == "controller1"
+
+- name: Create demo user
+  keystone_user: 
+    token={{ keystone_admin_token }} 
+    user=demo tenant=demo password={{ demo_pass }}
+    endpoint="{{ keystone_protocol }}://{{ keystone_hostname }}:{{ keystone_admin_port }}/v2.0"
+  when: hostname == "controller1"
+
+- name: Apply user role to demo user in demo project
+  keystone_user: 
+    token={{ keystone_admin_token }} 
+    role=user user=demo tenant=demo
+    endpoint="{{ keystone_protocol }}://{{ keystone_hostname }}:{{ keystone_admin_port }}/v2.0"
+  when: hostname == "controller1"
+
+- name: Create glance user
+  keystone_user:
+    token={{ keystone_admin_token }}
+    endpoint="{{ keystone_protocol }}://{{ keystone_hostname }}:{{ keystone_admin_port }}/v2.0"
+    user=glance tenant=service password={{ glance_pass }}
+  when: hostname == "controller1"
+
+- name: Apply admin role to user glance in project service
+  keystone_user:
+    token={{ keystone_admin_token }}
+    endpoint="{{ keystone_protocol }}://{{ keystone_hostname }}:{{ keystone_admin_port }}/v2.0"
+    role=admin user=glance tenant=service
+  when: hostname == "controller1"
+
+
+
+- name: Create cinder user
+  keystone_user:
+    token={{ keystone_admin_token }}
+    endpoint="{{ keystone_protocol }}://{{ keystone_hostname }}:{{ keystone_admin_port }}/v2.0"
+    user=cinder tenant=service password={{ cinder_pass }}
+  when: hostname == "controller1"
+
+- name: Apply admin role to user cinder in project service
+  keystone_user:
+    token={{ keystone_admin_token }}
+    endpoint="{{ keystone_protocol }}://{{ keystone_hostname }}:{{ keystone_admin_port }}/v2.0"
+    role=admin user=cinder tenant=service
+  when: hostname == "controller1"
+
+
+- name: Create swift user
+  keystone_user:
+    token={{ keystone_admin_token }}
+    endpoint="{{ keystone_protocol }}://{{ keystone_hostname }}:{{ keystone_admin_port }}/v2.0"
+    user=swift tenant=service password={{ swift_pass }}
+  when: hostname == "controller1"
+
+- name: Apply admin role to user swift in project service
+  keystone_user:
+    token={{ keystone_admin_token }}
+    endpoint="{{ keystone_protocol }}://{{ keystone_hostname }}:{{ keystone_admin_port }}/v2.0"
+    role=admin user=swift tenant=service
+  when: hostname == "controller1"
+
+- name: Create nova user
+  keystone_user:
+    token={{ keystone_admin_token }}
+    endpoint="{{ keystone_protocol }}://{{ keystone_hostname }}:{{ keystone_admin_port }}/v2.0"
+    user=nova tenant=service password={{ nova_pass }}
+  when: hostname == "controller1"
+
+- name: Apply admin role to user nova in project service
+  keystone_user:
+    token={{ keystone_admin_token }}
+    endpoint="{{ keystone_protocol }}://{{ keystone_hostname }}:{{ keystone_admin_port }}/v2.0"
+    role=admin user=nova tenant=service
+  when: hostname == "controller1"
+
+- name: Create neutron user
+  keystone_user:
+    token={{ keystone_admin_token }}
+    endpoint="{{ keystone_protocol }}://{{ keystone_hostname }}:{{ keystone_admin_port }}/v2.0"
+    user=neutron tenant=service password={{ neutron_pass }}
+  when: hostname == "controller1"
+
+- name: Apply admin role to user neutron in project service
+  keystone_user:
+    token={{ keystone_admin_token }}
+    endpoint="{{ keystone_protocol }}://{{ keystone_hostname }}:{{ keystone_admin_port }}/v2.0"
+    role=admin user=neutron tenant=service
+  when: hostname == "controller1"
+
+#- name: Create sahara user
+#  keystone_user:
+#    token={{ keystone_admin_token }}
+#    endpoint="{{ keystone_protocol }}://{{ keystone_hostname }}:{{ keystone_admin_port }}/v2.0"
+#    user=sahara tenant=service password={{ sahara_pass }}
+
+#- name: Apply admin role to user sahara in project service
+#  keystone_user:
+#    token={{ keystone_admin_token }}
+#    endpoint="{{ keystone_protocol }}://{{ keystone_hostname }}:{{ keystone_admin_port }}/v2.0"
+#    role=admin user=sahara tenant=service
+
+
+- name: Create heat user
+  keystone_user:
+    token={{ keystone_admin_token }}
+    endpoint="{{ keystone_protocol }}://{{ keystone_hostname }}:{{ keystone_admin_port }}/v2.0"
+    user=heat tenant=service password={{ heat_pass }}
+  when: hostname == "controller1"
+
+- name: Apply admin role to user heat in project service
+  keystone_user:
+    token={{ keystone_admin_token }}
+    endpoint="{{ keystone_protocol }}://{{ keystone_hostname }}:{{ keystone_admin_port }}/v2.0"
+    role=admin user=heat tenant=service
+  when: hostname == "controller1"
+
+#BugHunter
+- name: Create ceilometer user
+  keystone_user:
+    token={{ keystone_admin_token }}
+    endpoint="{{ keystone_protocol }}://{{ keystone_hostname }}:{{ keystone_admin_port }}/v2.0"
+    user=ceilometer tenant=service password={{ ceilometer_pass }}
+  when: hostname == "controller1"
+
+- name: Apply admin role to user ceilometer in project service
+  keystone_user:
+    token={{ keystone_admin_token }}
+    endpoint="{{ keystone_protocol }}://{{ keystone_hostname }}:{{ keystone_admin_port }}/v2.0"
+    role=admin user=ceilometer tenant=service
+  when: hostname == "controller1"
+
+- name: Add the ResellerAdmin role to the ceilometer user
+  keystone_user:
+    token={{ keystone_admin_token }}
+    endpoint="{{ keystone_protocol }}://{{ keystone_hostname }}:{{ keystone_admin_port }}/v2.0"
+    role=ResellerAdmin user=ceilometer tenant=service
+  when: hostname == "controller1"
+
+###########
+
+- meta: flush_handlers
+
+
+
+
+

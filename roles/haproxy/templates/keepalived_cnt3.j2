@@ -1,0 +1,33 @@
+
+global_defs {
+  router_id {{ hostname }}
+}
+
+vrrp_script haproxy {
+  script "killall -0 haproxy"
+  interval 2
+  weight -2
+}
+
+vrrp_instance 60 {
+  virtual_router_id 60
+  advert_int 1
+  priority 103
+  state MASTER
+  nopreempt
+  interface {{ mng_inf_name }}
+  virtual_ipaddress {
+    {{ controller_ipaddr }} dev {{ mng_inf_name }}
+  }
+  unicast_src_ip  {{ controller3_ipaddr }}
+  unicast_peer {
+    {{ controller1_ipaddr }}
+    {{ controller2_ipaddr }}
+  }
+
+  track_script {
+    haproxy
+  }
+
+}
+

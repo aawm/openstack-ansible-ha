@@ -1,0 +1,75 @@
+---
+
+- name: Create glance database
+  mysql_db: name={{ glance_db_name }} state=present
+
+
+- name: Create glance user in database
+  mysql_user: name={{ glance_db_user }} password={{ glance_db_pass }} host=%  priv=*.*:ALL,GRANT state=present
+
+
+
+- name: Install glance packages
+  apt: name={{ item }} state=installed force=yes
+  with_items:
+   - glance
+   - python-glanceclient
+
+
+- name: Configure glance-api
+  template: src=glance-api.j2 dest=/etc/glance/glance-api.conf
+  notify:
+   - restart glance-api
+  changed_when: true
+
+- name: Configure glance-registry
+  template: src=glance-registry.j2 dest=/etc/glance/glance-registry.conf
+  notify: restart glance-registry
+  changed_when: true
+
+- meta: flush_handlers
+
+
+
+- name: Sync glance database
+  shell: '/bin/bash -c "glance-manage db_sync" glance'
+  when: hostname == "controller1"
+
+- name: Copy cirros img
+  copy: src=cirros-0.3.4-x86_64-disk.img dest=/root/cirros-0.3.4-x86_64-disk.img
+  when: hostname == "controller1"
+
+
+- name: Add cirros image
+  glance: name=cirros file=/root/cirros-0.3.4-x86_64-disk.img format=qcow2 is_public=true auth_url=http://{{ keystone_hostname }}:5000/v2.0 username=admin tenant_name=admin password={{ admin_pass }} region=RegionOne endpoint_type=publicURL
+  when: hostname == "controller1"
+
+#- name: Add cirros image
+#  os_image:
+#    auth:
+#      auth_url: http://{{ keystone_hostname }}:35357/v3
+#      username: admin
+#      password: qydcos
+#      project_name: admin
+#    name: cirros
+#    container_format: bare
+#    disk_format: qcow2
+#    state: present
+#    filename: cirros-0.3.4-x86_64-disk.img
+#    kernel: cirros-vmlinuz
+#    ramdisk: cirros-initrd
+#    properties:
+#      cpu_arch: x86_64
+#      distro: ubuntu
+
+
+
+#  os_image: auth_url=http://{{ keystone_hostname }}:35357/v3 username=admin password= {{ admin_pass }} project_name= admin name= cirros container_format= bare disk_format= qcow2 state= present filename= cirros-0.3.4-x86_64-disk.img kernel= cirros-vmlinuz ramdisk= cirros-initrd
+
+#  properties:
+#  cpu_arch: x86_64
+#  distro: ubuntu
+
+
+
+

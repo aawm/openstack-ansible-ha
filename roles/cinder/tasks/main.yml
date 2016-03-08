@@ -1,0 +1,38 @@
+---
+
+- name: Create cinder database
+  mysql_db: name={{ cinder_db_name }} state=present
+
+
+- name: Create cinder user in database
+  mysql_user: name={{ cinder_db_user }} password={{ cinder_db_pass }} host=%  priv=*.*:ALL,GRANT state=present
+
+
+
+- name: Install cinder packages
+  apt: name={{ item }} state=installed force=yes
+  with_items:
+   - cinder-api
+   - cinder-scheduler
+   - python-cinderclient
+
+
+- name: Configure cinder-api
+  template: src=cinder.j2 dest=/etc/cinder/cinder.conf
+  notify:
+   - restart cinder-api
+   - restart cinder-scheduler
+  changed_when: true
+
+
+- name: Sync cinder database
+  shell: /bin/bash -c "cinder-manage db sync" cinder
+  when: hostname == "controller1"
+
+- meta: flush_handlers
+
+
+
+
+
+

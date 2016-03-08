@@ -1,0 +1,21 @@
+[controller]
+192.168.56.111	hostname=controller1 extra_ip=
+192.168.56.112	hostname=controller2
+192.168.56.113	hostname=controller3
+
+[computes]
+192.168.56.114	hostname=compute1
+192.168.56.115  hostname=compute2
+
+[swift-storage]
+192.168.56.114  hostname=compute1
+192.168.56.115  hostname=compute2
+
+
+[all]
+192.168.56.111
+192.168.56.112
+192.168.56.113
+192.168.56.114
+
+

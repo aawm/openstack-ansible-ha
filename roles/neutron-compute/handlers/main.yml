@@ -1,0 +1,12 @@
+---
+
+- name: restart neutron-plugin
+  service: name=neutron-plugin-openvswitch-agent state=restarted
+
+
+- name: restart openvswitch
+  service: name=openvswitch-switch state=restarted
+
+
+
+

@@ -1,0 +1,13 @@
+---
+
+
+- name: Install Chrony Service
+  apt: name=chrony state=installed force=yes
+
+
+- name: Configure chrony
+  template: src=chrony.j2 dest=/etc/chrony.conf
+
+ 
+
+
