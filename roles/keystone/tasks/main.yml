@@ -32,12 +32,20 @@
 - name: Copy keystone.conf file
   template: src=keystone.j2 dest=/etc/keystone/keystone.conf group=keystone
   notify: restart keystone
-
+  changed_when: true
 
 
 - name: Syncing keystone database
   shell: /bin/bash -c "keystone-manage db_sync" keystone
   when: hostname == "controller1"
+
+- meta: flush_handlers
+
+- name: wait for port 35357 ready
+  wait_for: host={{ hostname }} port=35357
+
+- name: wait for port 5000  ready
+  wait_for: host={{ hostname }} port=5000
 
 
 - name: Create Keystone services

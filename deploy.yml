@@ -1,10 +1,12 @@
 ---
 
 - hosts: all
+  remote_user: root
   roles: 
   - role: common 
 
 - hosts: controller
+  remote_user: root
   roles:
     - haproxy
     - mariadb
@@ -19,6 +21,7 @@
     - heat
 
 - hosts: computes
+  remote_user: root
   roles:
    - nova-compute
    - cinder-volume
@@ -26,6 +29,7 @@
 
 
 - hosts: swift-storage
+  remote_user: root
   roles:
    - swift-storage
 

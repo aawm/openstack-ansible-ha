@@ -11,7 +11,7 @@ state_path = /var/lib/cinder
 volumes_dir = /var/lib/cinder/volumes
 
 rpc_backend = rabbit
-my_ip = {{ ansible_eth0.ipv4.address }}
+my_ip = {{ ansible_default_ipv4.address }}
 
 enabled_backends = lvm
 glance_host = {{ glance_hostname }}

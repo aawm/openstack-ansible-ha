@@ -11,7 +11,7 @@ lock_path = /var/lock/cinder
 volumes_dir = /var/lib/cinder/volumes
 
 auth_strategy = keystone
-my_ip = {{ ansible_eth0.ipv4.address }}
+my_ip = {{ ansible_default_ipv4.address }}
 glance_host = {{ glance_hostname }}
 osapi_volume_listen = {{ hostname }}
 

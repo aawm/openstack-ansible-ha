@@ -15,7 +15,7 @@ enabled_apis=ec2,osapi_compute,metadata
 rpc_backend = rabbit
 auth_strategy = keystone
 
-my_ip = {{ ansible_eth0.ipv4.address }}
+my_ip = {{ ansible_default_ipv4.address  }}
 
 network_api_class = nova.network.neutronv2.api.API
 security_group_api = neutron
@@ -40,7 +40,7 @@ password = {{ nova_pass }}
 [vnc]
 enabled = True
 vncserver_listen = 0.0.0.0
-vncserver_proxyclient_address = {{ ansible_eth0.ipv4.address }}
+vncserver_proxyclient_address = {{ ansible_default_ipv4.address }}
 novncproxy_base_url = http://{{ nova_hostname }}:6080/vnc_auto.html
 
 [glance]
