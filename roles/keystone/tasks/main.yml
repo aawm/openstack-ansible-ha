@@ -198,7 +198,9 @@
     token="{{ keystone_admin_token }}"
     state="{{ item.state|default('present') }}"
   with_items:
-    - { name: ceilometr, type: metering, description: "Telemetry" }
+    - { name: ceilometer, type: metering, description: "Telemetry" }
+  when: hostname == "controller1"
+
 ###########
 
 #- name: Create Sahara service

@@ -34,9 +34,9 @@ listen dashboard {{ controller_ipaddr }}:80
 	option httpchk
 	option httpclose
 	rspidel ^Set-cookie:\ IP=
-	server controller1 {{ controller1_ipaddr }}:80 cookie controller1 check inter 2000 rise 2 fall 5
-	server controller2 {{ controller2_ipaddr }}:80 cookie controller2 check inter 2000 rise 2 fall 5	 
-	server controller3 {{ controller3_ipaddr }}:80 cookie controller3 check inter 2000 rise 2 fall 5
+	server controller1 {{ groups[['controller'][0]][0] }}:80 cookie controller1 check inter 2000 rise 2 fall 5
+	server controller2 {{ groups[['controller'][0]][1] }}:80 cookie controller2 check inter 2000 rise 2 fall 5	 
+	server controller3 {{ groups[['controller'][0]][2] }}:80 cookie controller3 check inter 2000 rise 2 fall 5
 
 
 listen stats {{ controller_ipaddr }}:1936
@@ -52,9 +52,9 @@ listen rabbitmq {{ controller_ipaddr }}:5672
 	timeout connect 5s
 	timeout client 100s
 	timeout server 100s
-	server controller1 {{ controller1_ipaddr }}:5672 check inter 5s rise 2 fall 3
-	server controller2 {{ controller2_ipaddr }}:5672 check inter 5s rise 2 fall 3
-	server controller3 {{ controller3_ipaddr }}:5672 check inter 5s rise 2 fall 3
+	server controller1 {{ groups[['controller'][0]][0] }}:5672 check inter 5s rise 2 fall 3
+	server controller2 {{ groups[['controller'][0]][1] }}:5672 check inter 5s rise 2 fall 3
+	server controller3 {{ groups[['controller'][0]][2] }}:5672 check inter 5s rise 2 fall 3
 
 	
 listen galera {{ controller_ipaddr }}:3306
@@ -62,9 +62,9 @@ listen galera {{ controller_ipaddr }}:3306
 	mode tcp
 	option tcpka
 	option mysql-check user haproxy
-	server controller1 {{ controller1_ipaddr }}:3306 check inter 2000 rise 2 fall 5 weight 1
-	server controller2 {{ controller2_ipaddr }}:3306 check inter 2000 rise 2 fall 5 weight 1
-	server controller3 {{ controller3_ipaddr }}:3306 check inter 2000 rise 2 fall 5 weight 1
+	server controller1 {{ groups[['controller'][0]][0] }}:3306 check inter 2000 rise 2 fall 5 weight 1
+	server controller2 {{ groups[['controller'][0]][1] }}:3306 check inter 2000 rise 2 fall 5 weight 1
+	server controller3 {{ groups[['controller'][0]][2] }}:3306 check inter 2000 rise 2 fall 5 weight 1
 
 
 
@@ -73,9 +73,9 @@ listen keystone_admin {{ controller_ipaddr }}:35357
 	option tcpka
 	option httpchk
 	maxconn 10000
-	server controller1 {{ controller1_ipaddr }}:35357 check inter 2000 rise 2 fall 5
-	server controller2 {{ controller2_ipaddr }}:35357 check inter 2000 rise 2 fall 5
-	server controller3 {{ controller3_ipaddr }}:35357 check inter 2000 rise 2 fall 5
+	server controller1 {{ groups[['controller'][0]][0] }}:35357 check inter 2000 rise 2 fall 5
+	server controller2 {{ groups[['controller'][0]][1] }}:35357 check inter 2000 rise 2 fall 5
+	server controller3 {{ groups[['controller'][0]][2] }}:35357 check inter 2000 rise 2 fall 5
 
 
 listen keystone_api {{ controller_ipaddr }}:5000
@@ -83,9 +83,9 @@ listen keystone_api {{ controller_ipaddr }}:5000
 	option tcpka
 	option httpchk
 	maxconn 10000
-	server controller1 {{ controller1_ipaddr }}:5000 check inter 2000 rise 2 fall 5
-	server controller2 {{ controller2_ipaddr }}:5000 check inter 2000 rise 2 fall 5
-	server controller3 {{ controller3_ipaddr }}:5000 check inter 2000 rise 2 fall 5
+	server controller1 {{ groups[['controller'][0]][0] }}:5000 check inter 2000 rise 2 fall 5
+	server controller2 {{ groups[['controller'][0]][1] }}:5000 check inter 2000 rise 2 fall 5
+	server controller3 {{ groups[['controller'][0]][2] }}:5000 check inter 2000 rise 2 fall 5
 
 
 listen glance-api {{ controller_ipaddr }}:9292
@@ -93,27 +93,27 @@ listen glance-api {{ controller_ipaddr }}:9292
 	option tcpka
 	option httpchk
 	maxconn 10000
-	server controller1 {{ controller1_ipaddr }}:9292 check inter 2000 rise 2 fall 5
-	server controller2 {{ controller2_ipaddr }}:9292 check inter 2000 rise 2 fall 5
-	server controller3 {{ controller3_ipaddr }}:9292 check inter 2000 rise 2 fall 5
+	server controller1 {{ groups[['controller'][0]][0] }}:9292 check inter 2000 rise 2 fall 5
+	server controller2 {{ groups[['controller'][0]][1] }}:9292 check inter 2000 rise 2 fall 5
+	server controller3 {{ groups[['controller'][0]][2] }}:9292 check inter 2000 rise 2 fall 5
 
 listen glance-registry {{ controller_ipaddr }}:9191
 	balance source
 	option tcpka
 	#option httpchk
 	maxconn 10000
-	server controller1 {{ controller1_ipaddr }}:9191 check inter 2000 rise 2 fall 5
-	server controller2 {{ controller2_ipaddr }}:9191 check inter 2000 rise 2 fall 5
-	server controller3 {{ controller3_ipaddr }}:9191 check inter 2000 rise 2 fall 5
+	server controller1 {{ groups[['controller'][0]][0] }}:9191 check inter 2000 rise 2 fall 5
+	server controller2 {{ groups[['controller'][0]][1] }}:9191 check inter 2000 rise 2 fall 5
+	server controller3 {{ groups[['controller'][0]][2] }}:9191 check inter 2000 rise 2 fall 5
 
 listen nova_ec2 {{ controller_ipaddr }}:8773
 	balance source
 	option tcpka
 	#option httpchk
 	maxconn	10000
-	server controller1 {{ controller1_ipaddr }}:8773 check inter 2000 rise 2 fall 5
-	server controller2 {{ controller2_ipaddr }}:8773 check inter 2000 rise 2 fall 5
-	server controller3 {{ controller3_ipaddr }}:8773 check inter 2000 rise 2 fall 5
+	server controller1 {{ groups[['controller'][0]][0] }}:8773 check inter 2000 rise 2 fall 5
+	server controller2 {{ groups[['controller'][0]][1] }}:8773 check inter 2000 rise 2 fall 5
+	server controller3 {{ groups[['controller'][0]][2] }}:8773 check inter 2000 rise 2 fall 5
 
 
 listen nova_osapi {{ controller_ipaddr }}:8774
@@ -121,9 +121,9 @@ listen nova_osapi {{ controller_ipaddr }}:8774
 	option tcpka
 	option httpchk
 	maxconn 10000
-	server controller1 {{ controller1_ipaddr }}:8774 check inter 2000 rise 2 fall 5
-	server controller2 {{ controller2_ipaddr }}:8774 check inter 2000 rise 2 fall 5
-	server controller3 {{ controller3_ipaddr }}:8774 check inter 2000 rise 2 fall 5
+	server controller1 {{ groups[['controller'][0]][0] }}:8774 check inter 2000 rise 2 fall 5
+	server controller2 {{ groups[['controller'][0]][1] }}:8774 check inter 2000 rise 2 fall 5
+	server controller3 {{ groups[['controller'][0]][2] }}:8774 check inter 2000 rise 2 fall 5
 
 
 listen nova_metadata {{ controller_ipaddr }}:8775
@@ -131,18 +131,18 @@ listen nova_metadata {{ controller_ipaddr }}:8775
 	option tcpka
 	option httpchk
 	maxconn 10000
-	server controller1 {{ controller1_ipaddr }}:8775 check inter 2000 rise 2 fall 5
-	server controller2 {{ controller2_ipaddr }}:8775 check inter 2000 rise 2 fall 5
-	server controller3 {{ controller3_ipaddr }}:8775 check inter 2000 rise 2 fall 5
+	server controller1 {{ groups[['controller'][0]][0] }}:8775 check inter 2000 rise 2 fall 5
+	server controller2 {{ groups[['controller'][0]][1] }}:8775 check inter 2000 rise 2 fall 5
+	server controller3 {{ groups[['controller'][0]][2] }}:8775 check inter 2000 rise 2 fall 5
 
 
 listen novnc {{ controller_ipaddr }}:6080
 	balance source
 	option tcpka
 	maxconn 10000
-	server controller1 {{ controller1_ipaddr }}:6080 check inter 2000 rise 2 fall 5
-	server controller2 {{ controller2_ipaddr }}:6080 check inter 2000 rise 2 fall 5
-	server controller3 {{ controller3_ipaddr }}:6080 check inter 2000 rise 2 fall 5
+	server controller1 {{ groups[['controller'][0]][0] }}:6080 check inter 2000 rise 2 fall 5
+	server controller2 {{ groups[['controller'][0]][1] }}:6080 check inter 2000 rise 2 fall 5
+	server controller3 {{ groups[['controller'][0]][2] }}:6080 check inter 2000 rise 2 fall 5
 
 
 listen cinder_api {{ controller_ipaddr }}:8776
@@ -150,9 +150,9 @@ listen cinder_api {{ controller_ipaddr }}:8776
 	option tcpka
 	option httpchk
 	option tcplog
-	server controller1 {{ controller1_ipaddr }}:8776 check inter 2000 rise 2 fall 5
-	server controller2 {{ controller2_ipaddr }}:8776 check inter 2000 rise 2 fall 5
-	server controller3 {{ controller3_ipaddr }}:8776 check inter 2000 rise 2 fall 5
+	server controller1 {{ groups[['controller'][0]][0] }}:8776 check inter 2000 rise 2 fall 5
+	server controller2 {{ groups[['controller'][0]][1] }}:8776 check inter 2000 rise 2 fall 5
+	server controller3 {{ groups[['controller'][0]][2] }}:8776 check inter 2000 rise 2 fall 5
 
 
 listen neutron_api {{ controller_ipaddr }}:9696
@@ -160,9 +160,9 @@ listen neutron_api {{ controller_ipaddr }}:9696
 	option tcpka
 	option httpchk
 	option tcplog
-	server controller1 {{ controller1_ipaddr }}:9696 check inter 2000 rise 2 fall 5
-	server controller2 {{ controller2_ipaddr }}:9696 check inter 2000 rise 2 fall 5
-	server controller3 {{ controller3_ipaddr }}:9696 check inter 2000 rise 2 fall 5
+	server controller1 {{ groups[['controller'][0]][0] }}:9696 check inter 2000 rise 2 fall 5
+	server controller2 {{ groups[['controller'][0]][1] }}:9696 check inter 2000 rise 2 fall 5
+	server controller3 {{ groups[['controller'][0]][2] }}:9696 check inter 2000 rise 2 fall 5
 
 
 listen heat_api_cluster {{ controller_ipaddr }}:8004
@@ -170,36 +170,36 @@ listen heat_api_cluster {{ controller_ipaddr }}:8004
 	option  tcpka
 	option  httpchk
 	option  tcplog
-	server controller1 {{ controller1_ipaddr }}:8004  check inter 2000 rise 2 fall 5
-	server controller2 {{ controller2_ipaddr }}:8004  check inter 2000 rise 2 fall 5
-	server controller3 {{ controller3_ipaddr }}:8004  check inter 2000 rise 2 fall 5
+	server controller1 {{ groups[['controller'][0]][0] }}:8004  check inter 2000 rise 2 fall 5
+	server controller2 {{ groups[['controller'][0]][1] }}:8004  check inter 2000 rise 2 fall 5
+	server controller3 {{ groups[['controller'][0]][2] }}:8004  check inter 2000 rise 2 fall 5
 
 listen heat_cf_api_cluster {{ controller_ipaddr }}:8000
 	balance source
 	option  tcpka
 	option  httpchk
 	option  tcplog
-	server controller1 {{ controller1_ipaddr }}:8000  check inter 2000 rise 2 fall 5
-	server controller2 {{ controller2_ipaddr }}:8000  check inter 2000 rise 2 fall 5
-	server controller3 {{ controller3_ipaddr }}:8000  check inter 2000 rise 2 fall 5
+	server controller1 {{ groups[['controller'][0]][0] }}:8000  check inter 2000 rise 2 fall 5
+	server controller2 {{ groups[['controller'][0]][1] }}:8000  check inter 2000 rise 2 fall 5
+	server controller3 {{ groups[['controller'][0]][2] }}:8000  check inter 2000 rise 2 fall 5
 
 
 listen ceilometer_api {{ controller_ipaddr }}:8777
 	balance source
 	option tcpka
 	option tcplog
-	server controller1 {{ controller1_ipaddr }}:8777 check inter 2000 rise 2 fall 5
-	server controller2 {{ controller2_ipaddr }}:8777 check inter 2000 rise 2 fall 5
-	server controller3 {{ controller3_ipaddr }}:8777 check inter 2000 rise 2 fall 5
+	server controller1 {{ groups[['controller'][0]][0] }}:8777 check inter 2000 rise 2 fall 5
+	server controller2 {{ groups[['controller'][0]][1] }}:8777 check inter 2000 rise 2 fall 5
+	server controller3 {{ groups[['controller'][0]][2] }}:8777 check inter 2000 rise 2 fall 5
 
 
 listen swift_proxy_cluster {{ controller_ipaddr }}:8080
         balance source
         option tcpka
         option tcplog
-        server controller1 {{ controller1_ipaddr }}:8080 check inter 2000 rise 2 fall 5
-        server controller2 {{ controller2_ipaddr }}:8080 check inter 2000 rise 2 fall 5
-        server controller3 {{ controller3_ipaddr }}:8080 check inter 2000 rise 2 fall 5
+        server controller1 {{ groups[['controller'][0]][0] }}:8080 check inter 2000 rise 2 fall 5
+        server controller2 {{ groups[['controller'][0]][1] }}:8080 check inter 2000 rise 2 fall 5
+        server controller3 {{ groups[['controller'][0]][2] }}:8080 check inter 2000 rise 2 fall 5
 
 
 

@@ -11,27 +11,31 @@
   template: src=my.j2 dest=/etc/mysql/my.cnf
   notify: restart mysql
 
-- name: copy wsrep.cnf to controller1
-  template: src=wsrep_cnt1.j2 dest=/etc/mysql/conf.d/wsrep.cnf
-  when: hostname == "controller1"
+- name: Configure wsrep.cnf
+  template: src=wsrep.j2 dest=/etc/mysql/wsrep.cnf
 
 
-- name: copy wsrep.cnf to controller2
-  template: src=wsrep_cnt2.j2 dest=/etc/mysql/conf.d/wsrep.cnf
-  when: hostname == "controller2"
+#- name: copy wsrep.cnf to controller1
+#  template: src=wsrep_cnt1.j2 dest=/etc/mysql/conf.d/wsrep.cnf
+#  when: hostname == "controller1"
 
-- name: copy wsrep.cnf to controller3
-  template: src=wsrep_cnt3.j2 dest=/etc/mysql/conf.d/wsrep.cnf
-  when: hostname == "controller3"
+
+#- name: copy wsrep.cnf to controller2
+#  template: src=wsrep_cnt2.j2 dest=/etc/mysql/conf.d/wsrep.cnf
+#  when: hostname == "controller2"
+
+#- name: copy wsrep.cnf to controller3
+#  template: src=wsrep_cnt3.j2 dest=/etc/mysql/conf.d/wsrep.cnf
+#  when: hostname == "controller3"
 
 - name: grap debian.cnf and then put them to other controller nodes
   fetch: dest=fetch/debian.cnf flat=yes src=/etc/mysql/debian.cnf
   when: hostname == "controller1"
 
-- name: Copy debian.cnf
-  copy: src=fetch/debian.cnf dest=/etc/mysql/debian.cnf
-  register: new_deb
-  when: (hostname == "controller2" or hostname == "controller3")
+#- name: Copy debian.cnf
+#  copy: src=fetch/debian.cnf dest=/etc/mysql/debian.cnf
+#  register: new_deb
+#  when: (hostname == "controller2" or hostname == "controller3")
 
 - name: update mysql root password for all root accounts
   mysql_user: name=root host={{ item }} password={{ mysql_root_db_pass }} priv=*.*:ALL,GRANT
@@ -40,7 +44,7 @@
    - 127.0.0.1
    - ::1
    - localhost
-  when: new_deb.changed
+#  when: new_deb.changed
 
 - name: copy .my.cnf file with root password credentials
   template: src=my.cnf.j2 dest=~/.my.cnf mode=0600
@@ -51,15 +55,20 @@
   mysql_user: name='' host={{ item }} state=absent
   with_items:
    - localhost
-  when: new_deb.changed
+#  when: new_deb.changed
 
 
 - name: remove the test database
   mysql_db: name=test state=absent
-  when: new_deb.changed
+#  when: new_deb.changed
 
 - name: ensure all node mysql service is stopped
   service: name=mysql state=stopped
+
+- name: Copy debian.cnf
+  copy: src=fetch/debian.cnf dest=/etc/mysql/debian.cnf
+  register: new_deb
+  when: (hostname == "controller2" or hostname == "controller3")
 
 
 #- name: Copy debian.cnf
