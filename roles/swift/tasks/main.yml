@@ -42,41 +42,41 @@
 
 
 - name: build account ring for node1
-  command: swift-ring-builder account.builder add --region 1 --zone 1 --ip {{ swift_storage_node1 }} --port 6002 --device {{ swift_dev_name }} --weight 100
+  command: swift-ring-builder account.builder add --region 1 --zone 1 --ip {{ groups[['swift-storage'][0]][0] }} --port 6002 --device {{ swift_dev_name }} --weight 100
            chdir=/etc/swift
   when: rings_exist.rc > 0 and hostname == "controller1"
   ignore_errors: true
  
 
 - name: build account ring for node2
-  command: swift-ring-builder account.builder add --region 1 --zone 1 --ip {{ swift_storage_node2 }} --port 6002 --device {{ swift_dev_name }} --weight 100
+  command: swift-ring-builder account.builder add --region 1 --zone 1 --ip {{ groups[['swift-storage'][0]][1] }} --port 6002 --device {{ swift_dev_name }} --weight 100
            chdir=/etc/swift
   when: rings_exist.rc > 0 and  hostname == "controller1"
   ignore_errors: true
 
 
 - name: build container ring for node1
-  command: swift-ring-builder container.builder add --region 1 --zone 1 --ip {{ swift_storage_node1 }} --port 6001 --device {{ swift_dev_name }} --weight 100
+  command: swift-ring-builder container.builder add --region 1 --zone 1 --ip {{ groups[['swift-storage'][0]][0] }} --port 6001 --device {{ swift_dev_name }} --weight 100
            chdir=/etc/swift
   when: rings_exist.rc > 0 and  hostname == "controller1"
   ignore_errors: true
 
 - name: build container ring for node2
-  command: swift-ring-builder container.builder add --region 1 --zone 1 --ip {{ swift_storage_node2 }} --port 6001 --device {{ swift_dev_name }} --weight 100
+  command: swift-ring-builder container.builder add --region 1 --zone 1 --ip {{ groups[['swift-storage'][0]][1] }} --port 6001 --device {{ swift_dev_name }} --weight 100
            chdir=/etc/swift
   when: rings_exist.rc > 0 and  hostname == "controller1"
   ignore_errors: true
 
 
 - name: build object ring for node1
-  command: swift-ring-builder object.builder add --region 1 --zone 1 --ip {{ swift_storage_node1 }} --port 6000 --device {{ swift_dev_name }} --weight 100
+  command: swift-ring-builder object.builder add --region 1 --zone 1 --ip {{ groups[['swift-storage'][0]][0] }} --port 6000 --device {{ swift_dev_name }} --weight 100
            chdir=/etc/swift
   when: rings_exist.rc > 0 and  hostname == "controller1"
   ignore_errors: true
 
 
 - name: build object ring for node2
-  command: swift-ring-builder object.builder add --region 1 --zone 1 --ip {{ swift_storage_node2 }} --port 6000 --device {{ swift_dev_name }} --weight 100
+  command: swift-ring-builder object.builder add --region 1 --zone 1 --ip {{ groups[['swift-storage'][0]][1] }} --port 6000 --device {{ swift_dev_name }} --weight 100
            chdir=/etc/swift
   when: rings_exist.rc > 0 and  hostname == "controller1"
   ignore_errors: true

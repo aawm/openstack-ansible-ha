@@ -4,12 +4,12 @@
 
 - name: Create heat database
   mysql_db: name={{ heat_db_name }} state=present
-
+  when: hostname == "controller1"
 
 
 - name: Create heat user in database
   mysql_user: name={{ heat_db_user }} password={{ heat_db_pass }} host=%  priv=*.*:ALL,GRANT state=present
-
+  when: hostname == "controller1"
 
 
 - name: Install heat packages

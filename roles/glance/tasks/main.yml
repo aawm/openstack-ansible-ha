@@ -2,11 +2,11 @@
 
 - name: Create glance database
   mysql_db: name={{ glance_db_name }} state=present
-
+  when: hostname == "controller1"
 
 - name: Create glance user in database
   mysql_user: name={{ glance_db_user }} password={{ glance_db_pass }} host=%  priv=*.*:ALL,GRANT state=present
-
+  when: hostname == "controller1"
 
 
 - name: Install glance packages

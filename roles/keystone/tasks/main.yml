@@ -4,11 +4,11 @@
 
 - name: Create keystone db
   mysql_db: name={{ keystone_db_name }} state=present
-
+  when: hostname == "controller1"
 
 - name: Create keystone  user
   mysql_user: name={{ keystone_db_user }} password={{ keystone_db_pass }} host=%  priv=*.*:ALL,GRANT state=present
-
+  when: hostname == "controller1"
 
 - name: Disallow keystone service auto start after installation complete.
   shell: /bin/echo "manual" > /etc/init/keystone.override
@@ -42,10 +42,10 @@
 - meta: flush_handlers
 
 - name: wait for port 35357 ready
-  wait_for: host={{ hostname }} port=35357
+  wait_for: host={{ hostname }} port=35357 delay=5
 
 - name: wait for port 5000  ready
-  wait_for: host={{ hostname }} port=5000
+  wait_for: host={{ hostname }} port=5000  delay=5 
 
 
 - name: Create Keystone services

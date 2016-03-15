@@ -12,7 +12,7 @@
   notify: restart mysql
 
 - name: Configure wsrep.cnf
-  template: src=wsrep.j2 dest=/etc/mysql/wsrep.cnf
+  template: src=wsrep.j2 dest=/etc/mysql/conf.d/wsrep.cnf
 
 
 #- name: copy wsrep.cnf to controller1
@@ -64,6 +64,10 @@
 
 - name: ensure all node mysql service is stopped
   service: name=mysql state=stopped
+
+#- name: copy .my.cnf file with root password credentials
+#  template: src=my.cnf.j2 dest=~/.my.cnf mode=0600
+
 
 - name: Copy debian.cnf
   copy: src=fetch/debian.cnf dest=/etc/mysql/debian.cnf

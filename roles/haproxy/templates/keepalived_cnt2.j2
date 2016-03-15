@@ -19,11 +19,11 @@ vrrp_instance 60 {
   virtual_ipaddress {
     {{ controller_ipaddr }} dev {{ mng_inf_name }}
   }
-#  unicast_src_ip  {{ controller2_ipaddr }}
-#  unicast_peer {
-#    {{ controller1_ipaddr }}
-#    {{ controller3_ipaddr }}
-#  }
+  unicast_src_ip  {{ groups[['controller'][0]][1] }}
+  unicast_peer {
+    {{ groups[['controller'][0]][0] }}
+    {{ groups[['controller'][0]][2] }}
+  }
 
   track_script {
     haproxy

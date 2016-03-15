@@ -2,11 +2,11 @@
 
 - name: Create neutron database
   mysql_db: name={{ neutron_db_name }} state=present
-
+  when: hostname == "controller1"
 
 - name: Create neutron user in database
   mysql_user: name={{ neutron_db_user }} password={{ neutron_db_pass }} host=%  priv=*.*:ALL,GRANT state=present
-
+  when: hostname == "controller1"
 
 
 - name: Install neutron controller packages

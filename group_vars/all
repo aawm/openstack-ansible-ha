@@ -2,12 +2,7 @@
 apt_mirror_addr: 192.168.56.12
 controller_ipaddr: 192.168.56.110
 controller: 192.168.56.110
-controller1_ipaddr: 192.168.56.111
-controller2_ipaddr: 192.168.56.112
-controller3_ipaddr: 192.168.56.113
 
-compute1_ipaddr: 192.168.56.114
-compute2_ipaddr: 192.168.56.115
 
 mng_inf_name: eth0
 mng_net: 192.168.56.0/24
@@ -56,8 +51,6 @@ mng_net_interface_name: eth0
 swift_replica_num: 2
 swift_dev_name: sdc
 swift_dev_path: /dev/sdc
-swift_storage_node1: 192.168.56.114
-swift_storage_node2: 192.168.56.115
 swift_hostname: controller
 
 heat_hostname: controller

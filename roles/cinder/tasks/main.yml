@@ -2,11 +2,11 @@
 
 - name: Create cinder database
   mysql_db: name={{ cinder_db_name }} state=present
-
+  when: hostname == "controller1"
 
 - name: Create cinder user in database
   mysql_user: name={{ cinder_db_user }} password={{ cinder_db_pass }} host=%  priv=*.*:ALL,GRANT state=present
-
+  when: hostname == "controller1"
 
 
 - name: Install cinder packages

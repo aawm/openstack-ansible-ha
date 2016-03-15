@@ -11,7 +11,7 @@
 - name: Configure haproxy
   template: src=haproxy.j2 dest=/etc/haproxy/haproxy.cfg
   notify: restart haproxy
- 
+  changed_when: true 
 
 - name: configure keepalived on controller1
   template: src=keepalived_cnt1.j2 dest=/etc/keepalived/keepalived.conf

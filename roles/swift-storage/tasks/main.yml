@@ -15,7 +15,7 @@
   file: path=/srv/node/ state=directory
 
 - name: Ensure /srv/node/sdc is ok
-  file: path=/srv/node/{{ swift_dev_name }} state=directory owner=swift group=swift
+  file: path=/srv/node/{{ swift_dev_name }} state=directory
 
 - name: Format the {{ swift_dev_path }} device as XFS
   filesystem: fstype=xfs dev={{ swift_dev_path }}
@@ -56,6 +56,9 @@
 - name: Ensure /etc/swift is ok
   file: path=/etc/swift owner=root group=swift 
   
+
+- name: Ensure /srv/node/sdc is ok
+  file: path=/srv/node/{{ swift_dev_name }}  owner=swift group=swift
 
 
 #- name: check if account.ring.gz already exists
