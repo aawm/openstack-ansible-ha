@@ -495,7 +495,7 @@ rpc_backend = rabbit
 # Deprecated group/name - [sql]/connection
 #connection = <None>
 #connection = sqlite:////var/lib/keystone/keystone.db
-connection = mysql+pymysql://{{ keystone_db_user }}:{{ keystone_db_pass }}@{{ controller }}/{{ keystone_db_name }}
+connection = mysql+pymysql://{{ keystone_db_user }}:{{ keystone_db_pass }}@{{ mysql_hostname }}/{{ keystone_db_name }}
 # The SQLAlchemy connection string to use to connect to the slave database.
 # (string value)
 #slave_connection = <None>
@@ -1538,7 +1538,7 @@ servers = controller1:11211,controller2:11211,controller3:11211
 
 # The RabbitMQ broker address where a single node is used. (string value)
 # Deprecated group/name - [DEFAULT]/rabbit_host
-rabbit_host = controller
+rabbit_host = {{ rabbit_hostname }}
 
 # The RabbitMQ broker port where a single node is used. (integer value)
 # Deprecated group/name - [DEFAULT]/rabbit_port

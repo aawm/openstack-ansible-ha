@@ -25,7 +25,7 @@ defaults
 	errorfile 503 /etc/haproxy/errors/503.http
 	errorfile 504 /etc/haproxy/errors/504.http
 
-listen dashboard {{ controller_ipaddr }}:80
+listen dashboard {{ vip_hostname }}:80
 	balance source
 	capture cookie vgnvisitor= len 32
 	cookie SERVERID insert indirect nocache
@@ -39,14 +39,14 @@ listen dashboard {{ controller_ipaddr }}:80
 	server controller3 {{ groups[['controller'][0]][2] }}:80 cookie controller3 check inter 2000 rise 2 fall 5
 
 
-listen stats {{ controller_ipaddr }}:1936
+listen stats {{ vip_hostname }}:1936
 	stats enable
 	stats uri /
 	stats hide-version
 	stats auth qyos:qy_dcos
 
 
-listen rabbitmq {{ controller_ipaddr }}:5672
+listen rabbitmq {{ vip_hostname }}:5672
 	mode tcp
 	balance roundrobin
 	timeout connect 5s
@@ -57,7 +57,7 @@ listen rabbitmq {{ controller_ipaddr }}:5672
 	server controller3 {{ groups[['controller'][0]][2] }}:5672 check inter 5s rise 2 fall 3
 
 	
-listen galera {{ controller_ipaddr }}:3306
+listen galera {{ vip_hostname }}:3306
 	balance source
 	mode tcp
 	option tcpka
@@ -68,7 +68,7 @@ listen galera {{ controller_ipaddr }}:3306
 
 
 
-listen keystone_admin {{ controller_ipaddr }}:35357
+listen keystone_admin {{ vip_hostname }}:35357
 	balance source
 	option tcpka
 	option httpchk
@@ -78,7 +78,7 @@ listen keystone_admin {{ controller_ipaddr }}:35357
 	server controller3 {{ groups[['controller'][0]][2] }}:35357 check inter 2000 rise 2 fall 5
 
 
-listen keystone_api {{ controller_ipaddr }}:5000
+listen keystone_api {{ vip_hostname }}:5000
 	balance source
 	option tcpka
 	option httpchk
@@ -88,7 +88,7 @@ listen keystone_api {{ controller_ipaddr }}:5000
 	server controller3 {{ groups[['controller'][0]][2] }}:5000 check inter 2000 rise 2 fall 5
 
 
-listen glance-api {{ controller_ipaddr }}:9292
+listen glance-api {{ vip_hostname }}:9292
 	balance source
 	option tcpka
 	option httpchk
@@ -97,7 +97,7 @@ listen glance-api {{ controller_ipaddr }}:9292
 	server controller2 {{ groups[['controller'][0]][1] }}:9292 check inter 2000 rise 2 fall 5
 	server controller3 {{ groups[['controller'][0]][2] }}:9292 check inter 2000 rise 2 fall 5
 
-listen glance-registry {{ controller_ipaddr }}:9191
+listen glance-registry {{ vip_hostname }}:9191
 	balance source
 	option tcpka
 	#option httpchk
@@ -106,7 +106,7 @@ listen glance-registry {{ controller_ipaddr }}:9191
 	server controller2 {{ groups[['controller'][0]][1] }}:9191 check inter 2000 rise 2 fall 5
 	server controller3 {{ groups[['controller'][0]][2] }}:9191 check inter 2000 rise 2 fall 5
 
-listen nova_ec2 {{ controller_ipaddr }}:8773
+listen nova_ec2 {{ vip_hostname }}:8773
 	balance source
 	option tcpka
 	#option httpchk
@@ -116,7 +116,7 @@ listen nova_ec2 {{ controller_ipaddr }}:8773
 	server controller3 {{ groups[['controller'][0]][2] }}:8773 check inter 2000 rise 2 fall 5
 
 
-listen nova_osapi {{ controller_ipaddr }}:8774
+listen nova_osapi {{ vip_hostname }}:8774
 	balance source
 	option tcpka
 	option httpchk
@@ -126,7 +126,7 @@ listen nova_osapi {{ controller_ipaddr }}:8774
 	server controller3 {{ groups[['controller'][0]][2] }}:8774 check inter 2000 rise 2 fall 5
 
 
-listen nova_metadata {{ controller_ipaddr }}:8775
+listen nova_metadata {{ vip_hostname }}:8775
 	balance source
 	option tcpka
 	option httpchk
@@ -136,7 +136,7 @@ listen nova_metadata {{ controller_ipaddr }}:8775
 	server controller3 {{ groups[['controller'][0]][2] }}:8775 check inter 2000 rise 2 fall 5
 
 
-listen novnc {{ controller_ipaddr }}:6080
+listen novnc {{ vip_hostname }}:6080
 	balance source
 	option tcpka
 	maxconn 10000
@@ -145,7 +145,7 @@ listen novnc {{ controller_ipaddr }}:6080
 	server controller3 {{ groups[['controller'][0]][2] }}:6080 check inter 2000 rise 2 fall 5
 
 
-listen cinder_api {{ controller_ipaddr }}:8776
+listen cinder_api {{ vip_hostname }}:8776
 	balance source
 	option tcpka
 	option httpchk
@@ -155,7 +155,7 @@ listen cinder_api {{ controller_ipaddr }}:8776
 	server controller3 {{ groups[['controller'][0]][2] }}:8776 check inter 2000 rise 2 fall 5
 
 
-listen neutron_api {{ controller_ipaddr }}:9696
+listen neutron_api {{ vip_hostname }}:9696
 	balance source
 	option tcpka
 	option httpchk
@@ -165,7 +165,7 @@ listen neutron_api {{ controller_ipaddr }}:9696
 	server controller3 {{ groups[['controller'][0]][2] }}:9696 check inter 2000 rise 2 fall 5
 
 
-listen heat_api_cluster {{ controller_ipaddr }}:8004
+listen heat_api_cluster {{ vip_hostname }}:8004
 	balance source
 	option  tcpka
 	option  httpchk
@@ -174,7 +174,7 @@ listen heat_api_cluster {{ controller_ipaddr }}:8004
 	server controller2 {{ groups[['controller'][0]][1] }}:8004  check inter 2000 rise 2 fall 5
 	server controller3 {{ groups[['controller'][0]][2] }}:8004  check inter 2000 rise 2 fall 5
 
-listen heat_cf_api_cluster {{ controller_ipaddr }}:8000
+listen heat_cf_api_cluster {{ vip_hostname }}:8000
 	balance source
 	option  tcpka
 	option  httpchk
@@ -184,7 +184,7 @@ listen heat_cf_api_cluster {{ controller_ipaddr }}:8000
 	server controller3 {{ groups[['controller'][0]][2] }}:8000  check inter 2000 rise 2 fall 5
 
 
-listen ceilometer_api {{ controller_ipaddr }}:8777
+listen ceilometer_api {{ vip_hostname }}:8777
 	balance source
 	option tcpka
 	option tcplog
@@ -193,13 +193,22 @@ listen ceilometer_api {{ controller_ipaddr }}:8777
 	server controller3 {{ groups[['controller'][0]][2] }}:8777 check inter 2000 rise 2 fall 5
 
 
-listen swift_proxy_cluster {{ controller_ipaddr }}:8080
+listen swift_proxy_cluster {{ vip_hostname }}:8080
         balance source
         option tcpka
         option tcplog
         server controller1 {{ groups[['controller'][0]][0] }}:8080 check inter 2000 rise 2 fall 5
         server controller2 {{ groups[['controller'][0]][1] }}:8080 check inter 2000 rise 2 fall 5
         server controller3 {{ groups[['controller'][0]][2] }}:8080 check inter 2000 rise 2 fall 5
+
+listen  mongos {{ vip_hostname }}:27023
+        mode tcp
+        balance source
+        option tcpka
+        server controller1 {{ groups[['controller'][0]][0] }}:27022 check inter 2000 rise 2 fall 5
+        server controller2 {{ groups[['controller'][0]][1] }}:27022 check inter 2000 rise 2 fall 5
+        server controller3 {{ groups[['controller'][0]][2] }}:27022 check inter 2000 rise 2 fall 5
+
 
 
 

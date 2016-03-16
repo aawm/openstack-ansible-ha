@@ -1,0 +1,14 @@
+- name: Create the mongos.conf
+  template: src=mongos.conf.j2 dest=/tmp/mongos.conf
+  vars:
+    mongos_log: "{{ item.log }}" 
+    mongos_port: "{{ item.port }}"
+    config_Repl: "{{ item.configRepl }}"
+    config_Port: "{{ item.configPort }}"
+  with_items: mongos_info
+
+- name: Pause 20s
+  pause: seconds=20
+
+- name: mongos start mogos
+  shell: mongos --config /tmp/mongos.conf

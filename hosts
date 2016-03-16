@@ -11,6 +11,13 @@
 192.168.56.114  hostname=compute1
 192.168.56.115  hostname=compute2
 
+[mongodb_cluster]
+192.168.56.28
+192.168.56.99
+192.168.56.100
+
+[primary_host]
+192.168.56.28
 
 [all]
 192.168.56.111

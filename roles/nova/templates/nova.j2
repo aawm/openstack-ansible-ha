@@ -59,7 +59,7 @@ service_metadata_proxy = true
 metadata_proxy_shared_secret = openstack
 
 [oslo_messaging_rabbit]
-rabbit_hosts = {{ controller }}
+rabbit_host = {{ rabbit_hostname }}
 rabbit_userid = {{ rabbit_userid }}
 rabbit_password = {{ rabbit_pass }}
 
@@ -75,6 +75,6 @@ password = {{ nova_pass }}
 
 
 [database]
-connection = mysql://{{ nova_db_user }}:{{ nova_db_pass }}@{{ controller }}/{{ nova_db_name }}
+connection = mysql://{{ nova_db_user }}:{{ nova_db_pass }}@{{ mysql_hostname }}/{{ nova_db_name }}
 
 

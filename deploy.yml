@@ -17,21 +17,70 @@
     - nova
     - neutron
     - dashboard
-    - swift
     - heat
 
-- hosts: computes
+- hosts: compute
   remote_user: root
   roles:
    - nova-compute
    - cinder-volume
    - neutron-compute
 
+- hosts: swift-controller
+  remote_user: root
+  roles: 
+   - swift
+
 
 - hosts: swift-storage
   remote_user: root
   roles:
    - swift-storage
+
+- hosts: cinder-storage
+  remote_user: root
+  roles:
+   - cinder-volume
+
+- hosts: mongodb_cluster
+  remote_user: root
+  roles:
+   - mongo_prerequisites
+   - mongo_start_shard_config_server
+
+- hosts: mongodb_primary_host
+  remote_user: root
+  roles:
+   - mongo_set_shard_replication
+   - mongo_set_configserver_replication
+
+- hosts: mongodb_cluster
+  remote_user: root
+  roles:
+   - mongo_start_mongos
+
+- hosts: mongodb_primary_host
+  remote_user: root
+  roles:
+   - mongo_mongos_addshard
+
+
+- hosts: ceilometer_controller
+  remote_user: root
+  roles:
+   - ceilometer
+   - ceilometer_image_service
+   - ceilometer_cinder_service_controller
+   - ceilometer_objectstorage_service
+
+
+- hosts: ceilometer_agent
+  remote_user: root
+  roles:
+   - ceilometer_compute_service
+   - ceilometer_cinder_service_blocknodes
+
+
 
 
 

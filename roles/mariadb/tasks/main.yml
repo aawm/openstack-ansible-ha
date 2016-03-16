@@ -13,7 +13,7 @@
 
 - name: Configure wsrep.cnf
   template: src=wsrep.j2 dest=/etc/mysql/conf.d/wsrep.cnf
-
+  register: newcnf
 
 #- name: copy wsrep.cnf to controller1
 #  template: src=wsrep_cnt1.j2 dest=/etc/mysql/conf.d/wsrep.cnf
@@ -29,7 +29,7 @@
 #  when: hostname == "controller3"
 
 - name: grap debian.cnf and then put them to other controller nodes
-  fetch: dest=fetch/debian.cnf flat=yes src=/etc/mysql/debian.cnf
+  fetch: dest=fetch/debian.cnf flat=yes src=/etc/mysql/debian.cnf fail_on_missing=yes validate_checksum=yes
   when: hostname == "controller1"
 
 #- name: Copy debian.cnf
@@ -71,7 +71,6 @@
 
 - name: Copy debian.cnf
   copy: src=fetch/debian.cnf dest=/etc/mysql/debian.cnf
-  register: new_deb
   when: (hostname == "controller2" or hostname == "controller3")
 
 
@@ -94,11 +93,11 @@
 
 - name: copy hauser.sql
   template: src=hauser.sql dest=/tmp
-  when: new_deb.changed
+  when: newcnf.changed
 
 - name: Create ha user in mysql
   mysql_db: name=all state=import target=/tmp/hauser.sql
-  when: new_deb.changed
+  when: newcnf.changed
 
 
 

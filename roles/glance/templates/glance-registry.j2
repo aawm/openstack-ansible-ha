@@ -362,7 +362,7 @@ rpc_backend = rabbit
 # Deprecated group/name - [DATABASE]/sql_connection
 # Deprecated group/name - [sql]/connection
 #connection = <None>
-connection = mysql+pymysql://{{ glance_db_user }}:{{ glance_db_pass }}@{{ controller }}/{{ glance_db_name }}
+connection = mysql+pymysql://{{ glance_db_user }}:{{ glance_db_pass }}@{{ mysql_hostname }}/{{ glance_db_name }}
 # The SQLAlchemy connection string to use to connect to the slave
 # database. (string value)
 #slave_connection = <None>
@@ -1153,7 +1153,7 @@ password = {{ glance_pass }}
 # The RabbitMQ broker address where a single node is used. (string
 # value)
 # Deprecated group/name - [DEFAULT]/rabbit_host
-rabbit_host = controller
+rabbit_host = {{ rabbit_hostname }}
 
 # The RabbitMQ broker port where a single node is used. (integer
 # value)

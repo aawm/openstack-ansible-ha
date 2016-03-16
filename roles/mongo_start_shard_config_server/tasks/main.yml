@@ -1,0 +1,11 @@
+---
+
+- name: Create replSet shard
+  shell: mongod --shardsvr --replSet {{ item.replSet }} --dbpath {{ item.dbpath }} --logpath  {{ item.log }} --port {{ item.port }} --bind_ip {{ inventory_hostname }} --fork --logappend
+  with_items: shard_info
+
+- name: Create config server
+  shell: mongod --configsvr --replSet {{ item.replSet }} --port {{ item.port }} --bind_ip {{ inventory_hostname }} --dbpath {{ item.dbpath }} --logpath {{ item.log}} --fork --logappend
+  with_items: config_server_info
+
+

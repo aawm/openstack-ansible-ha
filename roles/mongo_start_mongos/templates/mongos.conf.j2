@@ -1,0 +1,14 @@
+logpath={{ mongos_log }}
+logappend=true
+fork = true
+port = {{ mongos_port }}
+bind_ip = {{ inventory_hostname }}
+{% set hosts = config_Repl+'/' %}
+ {% for host in groups['mongodb_cluster'] %}
+   {% if loop.last %}
+      {% set hosts = hosts + host + ':' ~ config_Port  %}
+       configdb = {{ hosts }}
+      {% else %}
+        {% set hosts = hosts + host + ':' ~ config_Port + ','  %}
+   {% endif %}
+ {% endfor %}

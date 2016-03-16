@@ -1,0 +1,31 @@
+- name: Install the packages
+  apt: name=ceilometer-agent-compute state=installed force=yes
+
+- name: Create ceilometer.conf
+  template: src=ceilometer.conf.j2 dest=/etc/ceilometer/ceilometer.conf
+
+- name: Add conf to nova.conf
+  ini_file:
+    dest: /etc/nova/nova.conf
+    section: "{{ item.section }}"
+    option: "{{ item.option }}"
+    value: "{{ item.value }}"
+  with_items:
+    - { section: DEFAULT, option: instance_usage_audit, value: True }
+    - { section: DEFAULT, option: instance_usage_audit_period, value: hour }
+    - { section: DEFAULT, option: notify_on_state_change, value: vm_and_task_state }
+    - { section: DEFAULT, option: notification_driver, value: messagingv2 }
+
+- name: Restart the agent and compute service
+  service: name=ceilometer-agent-compute state=restarted
+
+
+- name: restart nova-compute
+  service: name=nova-compute state=restarted
+
+
+
+#  apt: name={{ item }} state=installed
+#  with_items:
+#    - ceilometer-agent-compute
+#    - nova-compute

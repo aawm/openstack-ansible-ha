@@ -17,7 +17,7 @@ enabled_backends = lvm
 glance_host = {{ glance_hostname }}
 
 [oslo_messaging_rabbit]
-rabbit_host = {{ controller }}
+rabbit_host = {{ rabbit_hostname }}
 rabbit_userid = {{ rabbit_userid }}
 rabbit_password = {{ rabbit_pass }}
 
@@ -38,7 +38,7 @@ iscsi_protocol = iscsi
 iscsi_helper = tgtadm
 
 [database]
-connection = mysql+pymysql://{{ cinder_db_user }}:{{ cinder_db_pass }}@{{ controller }}/{{ cinder_db_name }}
+connection = mysql+pymysql://{{ cinder_db_user }}:{{ cinder_db_pass }}@{{ mysql_hostname }}/{{ cinder_db_name }}
 
 [oslo_concurrency]
 lock_path = /var/lib/cinder/tmp

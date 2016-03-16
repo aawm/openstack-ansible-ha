@@ -740,7 +740,7 @@ password = {{ neutron_pass }}
 # to put the [database] section and its connection attribute in this
 # configuration file.
 #connection = sqlite:////var/lib/neutron/neutron.sqlite
-connection = mysql://{{ neutron_db_user }}:{{ neutron_db_pass }}@{{ controller }}/{{ neutron_db_name }}
+connection = mysql://{{ neutron_db_user }}:{{ neutron_db_pass }}@{{ mysql_hostname }}/{{ neutron_db_name }}
 # Database engine for which script will be generated when using offline
 # migration
 # engine =
@@ -1007,7 +1007,7 @@ lock_path = $state_path/lock
 
 # RabbitMQ HA cluster host:port pairs. (list value)
 # Deprecated group/name - [DEFAULT]/rabbit_hosts
-rabbit_hosts = {{ controller }}
+rabbit_host = {{ rabbit_hostname }}
 
 # Connect over SSL for RabbitMQ. (boolean value)
 # Deprecated group/name - [DEFAULT]/rabbit_use_ssl

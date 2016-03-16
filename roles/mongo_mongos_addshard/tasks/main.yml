@@ -1,0 +1,14 @@
+- name: Create mongos set file
+  template: src=mongos_set.j2 dest=/tmp/mongos_set_{{ item.replSet }}.js
+  vars:
+    replSet: "{{ item.replSet }}" 
+    shardPort: "{{ item.port }}" 
+  with_items: shard_info
+    
+
+- name: Pause 20s
+  pause: seconds=20
+
+- name: add shards
+  shell: mongo --port {{ item.mongos_port }} --host {{ inventory_hostname }} /tmp/mongos_set_{{ item.replSet }}.js
+  with_items: shard_info

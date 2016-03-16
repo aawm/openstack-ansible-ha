@@ -1,0 +1,46 @@
+- name: create db script
+  template: src=createdb.j2 dest=/tmp/createdb.js
+  register: dbjs
+
+
+- name: pause 20s
+  pause: seconds=20
+
+- name: set the lang env
+  shell: export LC_ALL=C
+
+- name: create ceilometer database
+  shell: mongo --port {{ mongos_port_ha }} --host {{ controller }} /tmp/createdb.js
+  when: ansible_hostname == "controller1" and dbjs.changed
+
+
+- name: Inatll mongodb-clients python-pymongo
+  apt: name={{ item }} state=installed force=yes
+  with_items:
+    - mongodb-clients
+    - python-pymongo
+
+- name: Install ceilometer packages
+  apt: name={{ item }} state=installed force=yes
+  with_items:
+    - ceilometer-api
+    - ceilometer-collector
+    - ceilometer-agent-central
+    - ceilometer-agent-notification
+    - ceilometer-alarm-evaluator
+    - ceilometer-alarm-notifier
+    - python-ceilometerclient
+
+- name: Create the config file
+  template: src=ceilometer.conf.j2 dest=/etc/ceilometer/ceilometer.conf
+
+- name: Restart the Telemetry
+  service: name={{ item }} state=restarted
+  with_items: 
+   - ceilometer-agent-central
+   - ceilometer-agent-notification
+   - ceilometer-api
+   - ceilometer-collector
+   - ceilometer-alarm-evaluator
+   - ceilometer-alarm-notifier
+

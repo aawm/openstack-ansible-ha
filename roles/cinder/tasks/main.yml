@@ -28,6 +28,7 @@
 - name: Sync cinder database
   shell: /bin/bash -c "cinder-manage db sync" cinder
   when: hostname == "controller1"
+  ignore_errors: True
 
 - meta: flush_handlers
 

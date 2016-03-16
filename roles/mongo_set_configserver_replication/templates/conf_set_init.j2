@@ -1,0 +1,6 @@
+rs.initiate()
+sleep(13000)
+{% for host in groups['mongodb_cluster'] %}
+rs.add("{{ host }}:{{ replsetport }}")
+sleep(8000)
+{% endfor %}

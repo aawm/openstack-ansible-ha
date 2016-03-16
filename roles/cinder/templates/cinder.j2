@@ -20,7 +20,7 @@ glance_api_version = 2
 rpc_backend = rabbit
 
 [oslo_messaging_rabbit]
-rabbit_host = {{ controller }}
+rabbit_host = {{ rabbit_hostname }}
 rabbit_userid = {{ rabbit_userid }}
 rabbit_password = {{ rabbit_pass }}
 
@@ -47,6 +47,6 @@ password = {{ cinder_pass }}
 
 
 [database]
-connection = mysql://{{ cinder_db_user }}:{{ cinder_db_pass }}@{{ controller }}/{{ cinder_db_name }}
+connection = mysql://{{ cinder_db_user }}:{{ cinder_db_pass }}@{{ vip_addr }}/{{ cinder_db_name }}
 
 

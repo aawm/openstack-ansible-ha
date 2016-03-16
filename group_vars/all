@@ -1,14 +1,12 @@
 
 apt_mirror_addr: 192.168.56.12
-controller_ipaddr: 192.168.56.110
-controller: 192.168.56.110
+vip_hostname: controller
 
+controller: controller
 
-mng_inf_name: eth0
-mng_net: 192.168.56.0/24
-
+mysql_hostname: controller
 mysql_root_db_pass: qydcos
-
+rabbit_hostname: controller
 rabbit_userid: openstack
 rabbit_pass: qydcos
 
@@ -64,6 +62,27 @@ ceilometer_hostname: controller
 ceilometer_db_name: ceilometer
 ceilometer_db_user: ceilometer
 ceilometer_db_pass: qydcos
+
+
+path: mongodb
+logpath: mongodb/log
+
+shard_info:
+- { replSet: res1,dbpath: mongodb/res1db,port: 27019,log: mongodb/log/log.res1,mongos_port: 27022 }
+- { replSet: res2,dbpath: mongodb/res2db,port: 27020,log: mongodb/log/log.res2,mongos_port: 27022 }
+
+config_server_info:
+- { replSet: configReplSet,dbpath: mongodb/cfg,port: 27021,log: mongodb/log/log.cfg}
+
+mongos_info:
+- { port: 27022,configRepl: configReplSet,configPort: 27021,log: mongodb/log/log.mongos}
+
+primary_host: controller1
+
+mongo_host_ha: controller
+mongos_port_ha: 27023
+ceilometer_db_pwd: qy_dcos
+
 
 admin_pass: qydcos
 demo_pass: qydcos

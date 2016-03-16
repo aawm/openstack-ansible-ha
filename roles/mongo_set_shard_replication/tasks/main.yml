@@ -1,0 +1,14 @@
+---
+
+- name: Create the file to initialize the mongod replica set
+  template: src=repset_init.j2 dest=/tmp/repset_init_{{ item.replSet }}.js
+  vars:
+    replsetport: "{{ item.port }}"
+  with_items: shard_info
+
+- name: Pause for a while
+  pause: seconds=20 
+
+- name: Initialize the reolication set
+  shell: mongo --port {{ item.port }} --host {{ inventory_hostname }} /tmp/repset_init_{{ item.replSet }}.js
+  with_items: shard_info

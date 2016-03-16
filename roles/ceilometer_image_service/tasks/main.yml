@@ -1,0 +1,31 @@
+- name: Add conf to glance-api.conf
+  ini_file: 
+    dest: /etc/glance/glance-api.conf
+    section: "{{ item.section }}"
+    option: "{{ item.option }}"
+    value: "{{ item.value }}"
+  with_items:
+    - { section: DEFAULT, option: notification_driver, value: messagingv2 }
+    - { section: DEFAULT, option: rpc_backend, value: rabbit }
+    - { section: oslo_messaging_rabbit, option: rabbit_host, value: "{{ controller }}" }
+    - { section: oslo_messaging_rabbit, option: rabbit_id, value: "{{ rabbit_userid }}" }
+    - { section: oslo_messaging_rabbit, option: rabbit_password, value: "{{ rabbit_pass }}" }
+
+- name: Add conf to glance-registry.conf
+  ini_file: 
+    dest: /etc/glance/glance-registry.conf
+    section: "{{ item.section }}"
+    option: "{{ item.option }}"
+    value: "{{ item.value }}"
+  with_items:
+    - { section: DEFAULT, option: notification_driver, value: messagingv2 }
+    - { section: DEFAULT, option: rpc_backend, value: rabbit }
+    - { section: oslo_messaging_rabbit, option: rabbit_host, value: "{{ controller }}" }
+    - { section: oslo_messaging_rabbit, option: rabbit_id, value: "{{ rabbit_userid }}" }
+    - { section: oslo_messaging_rabbit, option: rabbit_password, value: "{{ rabbit_pass }}" }
+
+- name: Restart image service
+  service: name={{ item }} state=restarted
+  with_items: 
+    - glance-registry
+    - glance-api

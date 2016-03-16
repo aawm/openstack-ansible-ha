@@ -1,0 +1,45 @@
+---
+
+- name: Kill the mongod process
+  shell: netstat -antpl | grep mongo | awk '{print $NF}' | awk -F "/" '{cmd="kill -9";mongodid=$1;system(cmd" "mongodid)}'
+
+- name: Delete the mongodb directory
+  file: name={{ path }} state=absent
+ 
+#- name: Import the public key used by the package management system
+#  command: apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv EA312927
+
+#- name: Copy the source list for mongodb
+#  copy: src=mongodb-org-3.2.list dest=/etc/apt/sources.list.d/mongodb-org-3.2.list
+
+- name: Reload local package database
+  apt: update_cache=yes
+
+- name: Install mongodb
+  apt: name=mongodb-org state=installed force=yes
+
+- name: set environment
+  shell: export LC_ALL=C
+
+- name: Solve the memory warning    copy
+  template: src=transparent_hugepage.j2 dest=/etc/init.d/disable-transparent-hugepages mode=0755
+
+- name: Solve the memory warning    update-rc
+  shell: update-rc.d disable-transparent-hugepages defaults
+
+- name: Solve the memory warning    echo1
+  shell: echo 'never' > /sys/kernel/mm/transparent_hugepage/enabled
+
+- name: Solve the memory warning    echo2
+  shell: echo 'never' > /sys/kernel/mm/transparent_hugepage/defrag
+
+- name: Create mongodb log directory
+  file: path={{ logpath }} state=directory
+
+- name: Create sharddb directory
+  file: path={{ item.dbpath }} state=directory
+  with_items: shard_info
+
+- name: Create the config server directory
+  file: path={{ item.dbpath }} state=directory
+  with_items: config_server_info

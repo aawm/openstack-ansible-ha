@@ -1,0 +1,1 @@
+db = db.getSiblingDB("{{ ceilometer_db_name }}");db.createUser({user: "{{ ceilometer_db_user }}",pwd: "{{ ceilometer_db_pwd }}",roles: [ "readWrite", "dbAdmin" ]})

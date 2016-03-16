@@ -1,0 +1,12 @@
+- name: Create the file to initialize the config  set
+  template: src=conf_set_init.j2 dest=/tmp/conf_set_init_{{ item.replSet }}.js
+  vars:
+    replsetport: "{{ item.port }}"
+  with_items: config_server_info
+
+- name: Pause 20s
+  pause: seconds=20
+
+- name: Initialize the config set
+  shell: mongo --port {{ item.port }} --host {{ inventory_hostname }} /tmp/conf_set_init_{{ item.replSet }}.js
+  with_items: config_server_info

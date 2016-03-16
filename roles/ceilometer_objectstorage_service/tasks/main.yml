@@ -1,0 +1,21 @@
+- name: Install the packages
+  apt: name=python-ceilometermiddleware state=installed force=yes
+
+- name: Edit the /etc/swift/proxy-server.conf file
+  ini_file:
+    dest: /etc/swift/proxy-server.conf
+    section: "{{ item.section }}"
+    option: "{{ item.option }}"
+    value: "{{ item.value }}"
+  with_items:
+    - { section: "filter:keystoneauth", option: operator_roles, value: "admin, user, ResellerAdmin" }
+    - { section: "pipeline:main", option: pipeline, value: "catch_errors gatekeeper healthcheck proxy-logging cache container_sync bulk ratelimit authtoken keystoneauth container-quotas account-quotas slo dlo versioned_writes proxy-logging ceilometer proxy-server" }
+    - { section: "filter:ceilometer", option: paste.filter_factory, value: "ceilometermiddleware.swift:filter_factory" }
+    - { section: "filter:ceilometer", option: control_exchange, value: "swift" }
+    - { section: "filter:ceilometer", option: url, value: "rabbit://{{ rabbit_userid }}:{{ rabbit_pass }}@{{ controller }}:5672/" }
+    - { section: "filter:ceilometer", option: driver, value: "messagingv2"}
+    - { section: "filter:ceilometer", option: topic, value: "notifications"}
+    - { section: "filter:ceilometer", option: log_warn, value: "WARN"}
+
+- name: Restart the Object Storage proxy service
+  service: name=swift-proxy state=restarted
