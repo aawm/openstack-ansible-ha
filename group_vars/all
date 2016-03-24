@@ -1,6 +1,7 @@
 
 apt_mirror_addr: 192.168.56.12
 vip_hostname: controller
+mng_inf_name: eth0
 
 controller: controller
 

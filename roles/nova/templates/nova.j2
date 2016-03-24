@@ -13,7 +13,7 @@ enabled_apis=ec2,osapi_compute,metadata
 
 rpc_backend = rabbit
 auth_strategy = keystone
-myip = {{ ansible_default_ipv4.address }}
+myip = {{ inventory_hostname }}
 vncserver_listen = {{ hostname }}
 vncserver_proxyclient_address = {{ hostname }}
 

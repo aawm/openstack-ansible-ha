@@ -15,9 +15,9 @@ vrrp_instance 60 {
   priority 101
   state BACKUP
   nopreempt
-  interface {{ ansible_default_ipv4.interface }}
+  interface {{ mng_inf_name }}
   virtual_ipaddress {
-    {{ vip_addr }} dev {{ ansible_default_ipv4.interface }}
+    {{ vip_addr }} dev {{ mng_inf_name }}
   }
   unicast_src_ip  {{ groups[['controller'][0]][0] }}
   unicast_peer {

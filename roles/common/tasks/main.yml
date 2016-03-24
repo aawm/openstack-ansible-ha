@@ -40,7 +40,7 @@
   with_items:
    - { name: net.ipv4.conf.all.rp_filter, value: 0 }
    - { name: net.ipv4.conf.default.rp_filter=0, value: 0 }
-  when: "'computes' in group_names"
+  when: "'compute' in group_names"
 
 
 
@@ -60,7 +60,7 @@
 
 - name: Configure chrony on all computes nodes
   template: src=chrony_compute.j2 dest=/etc/chrony/chrony.conf
-  when: "'computes' in group_names"
+  when: "'compute' in group_names"
 
 
 - meta: flush_handlers

@@ -4,7 +4,7 @@ keyfile /etc/chrony/chrony.keys
 initstepslew 10 controller2 controller3
 local stratum 8
 manual
-allow {{ ansible_default_ipv4.address }}/24
+allow {{ inventory_hostname }}/24
 
 
 

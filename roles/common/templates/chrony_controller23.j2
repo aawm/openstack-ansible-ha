@@ -5,9 +5,9 @@ commandkey 1
 keyfile /etc/chrony/chrony.keys
 initstepslew 20 controller1
 local stratum 10
-allow controller1
+#allow controller1
 
 logdir /var/log/chrony
 log measurements statistics tracking
-
+allow {{ inventory_hostname }}/24
 
